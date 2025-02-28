@@ -1,3 +1,5 @@
+local log = require("avante-cody.util.log")
+
 -- Documentation for setting up Sourcegraph Cody
 --- Generating an access token: https://sourcegraph.com/docs/cli/how-tos/creating_an_access_token
 
@@ -164,8 +166,6 @@ function CodyProvider:parse_response_without_stream(data, state, opts)
     local stopReason = json.stopReason
     local usage = json.usage
 
-    vim.print(vim.inspect({ opts = opts }))
-
     opts.on_chunk(completion or "")
 
     if stopReason == "tool_use" then
@@ -193,7 +193,7 @@ function CodyProvider:parse_response_without_stream(data, state, opts)
     opts.on_stop({})
 end
 
-function CodyProvider:parse_response_data(ctx, data_stream, event_state, opts)
+function CodyProvider.parse_response(ctx, data_stream, event_state, opts)
     if event_state == "done" then
         opts.on_stop({})
         return
@@ -250,7 +250,6 @@ function CodyProvider:parse_response_data(ctx, data_stream, event_state, opts)
     end
 
     if stopReason == "tool_use" then
-        vim.print(vim.inspect({ ctx.tool_use }))
         opts.on_stop({
             reason = "tool_use",
             usage = usage,
@@ -306,10 +305,10 @@ function CodyProvider:parse_config(opts)
             end)
 end
 
-function CodyProvider:parse_curl_args(provider, code_opts)
-    local base, body_opts = self.parse_config(provider)
+function CodyProvider.parse_curl_args(provider, code_opts)
+    local base, body_opts = provider:parse_config(provider)
 
-    local api_key = provider.parse_api_key()
+    local api_key = provider:parse_api_key()
     if api_key == nil then
         -- if no api key is available, make a request with a empty api key.
         api_key = ""
@@ -321,10 +320,10 @@ function CodyProvider:parse_curl_args(provider, code_opts)
     }
 
     local tools = nil
-    if not self.disable_tools and code_opts.tools then
+    if not provider.disable_tools and code_opts.tools then
         tools = {}
         for _, tool in ipairs(code_opts.tools) do
-            table.insert(tools, self.transform_tool(tool))
+            table.insert(tools, provider:transform_tool(tool))
         end
     end
 
@@ -340,9 +339,9 @@ function CodyProvider:parse_curl_args(provider, code_opts)
             temperature = body_opts.tmemperature,
             topK = body_opts.topK,
             topP = body_opts.topP,
-            maxTokensToSample = self.max_output_tokens,
-            stream = self.stream,
-            messages = self.parse_messages(code_opts),
+            maxTokensToSample = provider.max_output_tokens,
+            stream = provider.stream,
+            messages = provider:parse_messages(code_opts),
             tools = tools,
         }, {}),
     }
