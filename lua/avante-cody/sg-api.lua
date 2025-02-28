@@ -1,0 +1,113 @@
+-- TODO: bring in features from the cody API's to improve context e.t.c
+
+-- CodyProvider.get_context_file_list = function(context)
+--     local codebase_context = {}
+--
+--     for _, blob in ipairs(context) do
+--         local path = blob.blob.path
+--
+--         table.insert(codebase_context, path)
+--     end
+--
+--     return codebase_context
+-- end
+
+-- CodyProvider.get_cody_context = function(endpoint, query, api_key, repo)
+--     local bufnr = vim.api.nvim_get_current_buf()
+--     local filetype = vim.api.nvim_get_option_value("filetype", { buf = bufnr })
+--
+--     local headers = {
+--         ["Content-Type"] = "application/json; charset=utf-8",
+--         ["x-sourcegraph-client"] = endpoint,
+--         ["Authorization"] = "token " .. api_key,
+--     }
+--
+--     -- local current_repo = vim.fn.system('git rev-parse --show-toplevel'):gsub('\n', '')
+--     -- current_repo = vim.fn.fnamemodify(current_repo, ':t')
+--     local current_repo = "UmVwb3NpdG9yeToxNjI="
+--
+--     local body = {
+--         query = [[
+--       query GetCodyContext($repos: [ID!]!, $query: String!, $codeResultsCount: Int!, $textResultsCount: Int!, $filePatterns: [String!]) {
+--         getCodyContext(repos: $repos, query: $query, codeResultsCount: $codeResultsCount, textResultsCount: $textResultsCount, filePatterns: $filePatterns) {
+--           ...on FileChunkContext {
+--             blob {
+--               path
+--               repository {
+--                 id
+--                 name
+--               }
+--               commit {
+--                 oid
+--               }
+--               url
+--             }
+--             startLine
+--             endLine
+--             chunkContent
+--             matchedRanges {
+--               start {
+--                 line
+--                 column: character
+--               }
+--               end {
+--                 line
+--                 column: character
+--               }
+--             }
+--           }
+--         }
+--       }
+--     ]],
+--         variables = {
+--             repos = { repo or current_repo },
+--             query = query,
+--             codeResultsCount = 15,
+--             textResultsCount = 5,
+--         },
+--     }
+--
+--     local callback = function(response)
+--         -- Handle the response here
+--         if response.status == 200 then
+--             local data = vim.json.decode(response.body)
+--
+--             vim.api.nvim_notify(vim.inspect(response), 1, {})
+--
+--             if data.errors ~= nil then
+--                 print("Error: " .. "query errors.")
+--                 return nil
+--             end
+--
+--             local context = data.data.getCodyContext
+--             -- Process the data as needed
+--
+--             CodyProvider.cody_context = context
+--         else
+--             print("Error: " .. response.status)
+--             return nil
+--         end
+--     end
+--
+--     if filetype == "AvanteInput" then
+--         -- vim.api.nvim_notify('async', 1, {})
+--         local response = require("plenary.curl").post(endpoint .. "/.api/graphql?GetCodyContext", {
+--             headers = headers,
+--             body = vim.fn.json_encode(body),
+--         })
+--         callback(response)
+--     else
+--         -- vim.api.nvim_notify('sync', 1, {})
+--         require("plenary.curl").post(endpoint .. "/.api/graphql?GetCodyContext", {
+--             headers = headers,
+--             body = vim.fn.json_encode(body),
+--             callback = callback,
+--         })
+--     end
+-- end
+--
+--
+-- Get Cody context
+-- local context_query = code_opts.messages[#code_opts.messages].content -- Use the last message as the context query
+-- M.get_cody_context(base.endpoint, context_query, api_key)
+-- vim.api.nvim_notify(api_key.. "\n\n\n\n\n\n", 1, {})

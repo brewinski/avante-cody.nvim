@@ -21,8 +21,7 @@ local defaults = vim.deepcopy(AvanteCody.options)
 ---
 ---@private
 function AvanteCody.defaults(options)
-    AvanteCody.options =
-        vim.deepcopy(vim.tbl_deep_extend("keep", options or {}, defaults or {}))
+    AvanteCody.options = vim.deepcopy(vim.tbl_deep_extend("keep", options or {}, defaults or {}))
 
     -- let your user know that they provided a wrong value, this is reported when your plugin is executed.
     assert(
