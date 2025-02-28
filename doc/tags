@@ -1,5 +1,5 @@
-YourPluginName.disable()	neovim-plugin-boilerplate.txt	/*YourPluginName.disable()*
-YourPluginName.enable()	neovim-plugin-boilerplate.txt	/*YourPluginName.enable()*
-YourPluginName.options	neovim-plugin-boilerplate.txt	/*YourPluginName.options*
-YourPluginName.setup()	neovim-plugin-boilerplate.txt	/*YourPluginName.setup()*
-YourPluginName.toggle()	neovim-plugin-boilerplate.txt	/*YourPluginName.toggle()*
+AvanteCody.disable()	avante-cody.txt	/*AvanteCody.disable()*
+AvanteCody.enable()	avante-cody.txt	/*AvanteCody.enable()*
+AvanteCody.options	avante-cody.txt	/*AvanteCody.options*
+AvanteCody.setup()	avante-cody.txt	/*AvanteCody.setup()*
+AvanteCody.toggle()	avante-cody.txt	/*AvanteCody.toggle()*
