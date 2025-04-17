@@ -36,7 +36,7 @@ function FileWriter:open()
 
     self.file = file
 
-    log.debug(self.log_scope, string.format("log file created at %s", self.filepath))
+    log.debug(self.log_scope, string.format("log file opened/created at %s", self.filepath))
 end
 
 function FileWriter:write(str)

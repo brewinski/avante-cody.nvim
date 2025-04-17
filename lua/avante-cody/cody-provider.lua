@@ -2,8 +2,6 @@ local log = require("avante-cody.util.log")
 
 local LOG_SCOPE = "cody-provider"
 
-log.debug(LOG_SCOPE, "initialsing cody provider.")
-
 -- Documentation for setting up Sourcegraph Cody
 --- Generating an access token: https://sourcegraph.com/docs/cli/how-tos/creating_an_access_token
 
@@ -70,7 +68,6 @@ local default_opts = {
 ---@param opts? avante_cody.AvanteProviderOpts Options to override defaults
 ---@return avante_cody.AvanteProviderFunctor
 function CodyProvider:new(opts)
-    log.debug(LOG_SCOPE, "initialsing new cody provider, opts[%s]", vim.inspect(opts))
     -- Create a new instance with default options
     local instance_opts = vim.deepcopy(default_opts)
 
@@ -200,6 +197,17 @@ function CodyProvider:parse_response_without_stream(data, state, opts)
 end
 
 function CodyProvider.parse_response(_, ctx, data_stream, event_state, opts)
+    log.debug(
+        LOG_SCOPE,
+        "parse_response: args: %s",
+        vim.inspect({
+            data_stream = data_stream,
+            event_state = event_state,
+            opts = opts,
+            ctx = ctx,
+        }, { newline = "" })
+    )
+
     if event_state == "done" then
         opts.on_stop({})
         return
@@ -208,18 +216,17 @@ function CodyProvider.parse_response(_, ctx, data_stream, event_state, opts)
     if event_state == "error" then
         log.error(
             LOG_SCOPE,
-            "cody provider error: %s, data_stream: %s, opts: %s, ctx: %s",
-            event_state,
-            data_stream,
-            opts,
-            ctx
+            "parse_response: error: %s",
+            vim.inspect({
+                data_stream = data_stream,
+            }, { newline = "" })
         )
         opts.on_stop({ error = string.format("error: %s", data_stream) })
         return
     end
 
     if data_stream == nil or data_stream == "" then
-        log.debug(LOG_SCOPE, "empyt event_state: %s, opts: %s, ctx: %s", event_state, opts, ctx)
+        log.debug(LOG_SCOPE, "parse_response: data_stream is empty")
         return
     end
 
@@ -229,20 +236,16 @@ function CodyProvider.parse_response(_, ctx, data_stream, event_state, opts)
     local stopReason = json.stopReason
     local usage = json.usage
 
-    log.debug(
-        LOG_SCOPE,
-        "delta: %s, tool_use: %s, stopReason: %s, usage: %s",
-        delta,
-        vim.inspect(tool_use) or tool_use,
-        stopReason,
-        usage
-    )
-
     if delta ~= nil and delta ~= "" then
         opts.on_chunk(delta)
     end
 
     if tool_use and tool_use[1] then
+        log.debug(
+            LOG_SCOPE,
+            "parse_response: tool_use: %s",
+            vim.inspect(tool_use, { newline = "" })
+        )
         ctx.tool_use = ctx.tool_use
             or {
                 {
@@ -320,6 +323,7 @@ function CodyProvider:parse_config(opts)
 end
 
 function CodyProvider.parse_curl_args(provider, code_opts)
+    log.debug(LOG_SCOPE, "parse_curl_args: args: %s", vim.inspect(code_opts, { newline = "" }))
     local base, body_opts = provider:parse_config(provider)
 
     local api_key = provider:parse_api_key()
@@ -342,8 +346,6 @@ function CodyProvider.parse_curl_args(provider, code_opts)
     end
 
     local messages = provider:parse_messages(code_opts)
-
-    log.debug(LOG_SCOPE, "parse_curl_args, opts[%s]", vim.inspect(messages))
 
     return {
         -- url = base.endpoint .. '/.api/llm/chat/completions',
