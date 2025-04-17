@@ -6,6 +6,7 @@
     ],
     "workspace.library": [
         "/usr/local/share/nvim/runtime/lua",
-        ".ci/neovim/share/nvim/runtime/lua"
+        ".ci/neovim/share/nvim/runtime/lua",
+        "/opt/homebrew/Cellar/neovim/0.11.0/share/nvim/runtime/lua"
     ]
 }

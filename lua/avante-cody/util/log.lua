@@ -2,6 +2,63 @@ local log = {}
 
 local longest_scope = 15
 
+--- @class FileWriter
+--- @field filename string | nil
+--- @field file file* | nil
+local FileWriter = {
+    file = nil,
+    filepath = nil,
+    log_scope = "file-writer",
+}
+
+function FileWriter:new()
+    local log_directory = vim.fn.stdpath("data")
+    local log_file = "avante-cody.nvim.log"
+    local o = {}
+    setmetatable(o, self)
+    self.__index = self
+    o.filepath = string.format("%s/%s", log_directory, log_file)
+    return o
+end
+
+function FileWriter:open()
+    -- if the file is already open, close it.
+    if self.file then
+        self.file:close()
+        self.file = nil
+    end
+
+    if not self.filepath or self.filepath == "" then
+        return
+    end
+
+    local file = assert(io.open(self.filepath, "a"))
+
+    self.file = file
+
+    log.debug(self.log_scope, string.format("log file created at %s", self.filepath))
+end
+
+function FileWriter:write(str)
+    if not self.file then
+        self:open()
+    end
+
+    if self.file then
+        self.file:write(str)
+        self.file:flush()
+    end
+end
+
+function FileWriter:close()
+    if self.file then
+        self.file:close()
+        self.file = nil
+    end
+end
+
+local writer = nil
+
 --- prints only if debug is true.
 ---
 ---@param scope string: the scope from where this function is called.
@@ -10,6 +67,16 @@ local longest_scope = 15
 ---@private
 function log.debug(scope, str, ...)
     return log.notify(scope, vim.log.levels.DEBUG, false, str, ...)
+end
+
+--- prints only if error is true.
+---
+---@param scope string: the scope from where this function is called.
+---@param str string: the formatted string.
+---@param ... any: the arguments of the formatted string.
+---@private
+function log.error(scope, str, ...)
+    return log.notify(scope, vim.log.levels.ERROR, false, str, ...)
 end
 
 --- prints only if debug is true.
@@ -37,11 +104,26 @@ function log.notify(scope, level, verbose, str, ...)
         end
     end
 
-    vim.notify(
-        string.format("[avante-cody.nvim@%s] %s", scope, string.format(str, ...)),
-        level,
-        { title = "avante-cody.nvim" }
-    )
+    if _G.AvanteCody.config.logfile then
+        if not writer then
+            writer = FileWriter:new()
+        end
+
+        writer:write(
+            string.format(
+                "[avante-cody.nvim@%s] level=%s message=%s\n",
+                scope,
+                level,
+                string.format(str, ...)
+            )
+        )
+    else
+        vim.notify(
+            string.format("[avante-cody.nvim@%s] %s", scope, string.format(str, ...)),
+            level,
+            { title = "avante-cody.nvim" }
+        )
+    end
 end
 
 --- analyzes the user provided `setup` parameters and sends a message if they use a deprecated option, then gives the new option to use.

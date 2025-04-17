@@ -3,3 +3,5 @@ AvanteCody.enable()	avante-cody.txt	/*AvanteCody.enable()*
 AvanteCody.options	avante-cody.txt	/*AvanteCody.options*
 AvanteCody.setup()	avante-cody.txt	/*AvanteCody.setup()*
 AvanteCody.toggle()	avante-cody.txt	/*AvanteCody.toggle()*
+CodyProvider	avante-cody.txt	/*CodyProvider*
+CodyProvider:new()	avante-cody.txt	/*CodyProvider:new()*

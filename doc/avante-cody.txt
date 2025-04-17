@@ -17,6 +17,65 @@ Disables the plugin, clear highlight groups and autocmds, closes side buffers an
 
 ==============================================================================
 ------------------------------------------------------------------------------
+Generating an access token: https://sourcegraph.com/docs/cli/how-tos/creating_an_access_token
+
+------------------------------------------------------------------------------
+                                                                  *CodyProvider*
+                                 `CodyProvider`
+Class ~
+{avante_cody.AvanteProviderFunctor}
+
+------------------------------------------------------------------------------
+Class ~
+{avante_cody.AvanteProviderOpts} All fields are optional as they'll be merged with defaults
+Fields ~
+{disable_tools} `(optional)` `(boolean)`
+{endpoint} `(optional)` `(string)`
+{api_key_name} `(optional)` `(string)`
+{max_tokens} `(optional)` `(integer)`
+{max_output_tokens} `(optional)` `(integer)`
+{stream} `(optional)` `(boolean)`
+{topK} `(optional)` `(integer)`
+{topP} `(optional)` `(integer)`
+{model} `(optional)` `(string)`
+{proxy} `(optional)` `(string)`
+{allow_insecure} `(optional)` `(boolean)`
+{timeout} `(optional)` `(integer)`
+{temperature} `(optional)` `(number)`
+{cody_context} `(optional)` `(table)`
+{role_map} `(optional)` `(table)`
+
+------------------------------------------------------------------------------
+Class ~
+{avante_cody.AvanteProviderFunctor}
+Fields ~
+{disable_tools} `(integer)`
+{endpoint} `(string)`
+{api_key_name} `(string)`
+{max_tokens} `(integer)`
+{max_output_tokens} `(integer)`
+{stream} `(boolean)`
+{topK} `(integer)`
+{topP} `(integer)`
+{model} `(string)`
+{proxy} `(string | nil)`
+{allow_insecure} `(boolean)`
+{timeout} `(integer)`
+{temperature} `(integer)`
+{cody_context} `(table)`
+{role_map} `(table)`
+
+------------------------------------------------------------------------------
+                                                            *CodyProvider:new()*
+                           `CodyProvider:new`({opts})
+Parameters ~
+{opts} `(optional)` `(avante_cody.AvanteProviderOpts)` Options to override defaults
+Return ~
+`(avante_cody.AvanteProviderFunctor)`
+
+
+==============================================================================
+------------------------------------------------------------------------------
                                                             *AvanteCody.options*
                               `AvanteCody.options`
 AvanteCody configuration with its default values.
