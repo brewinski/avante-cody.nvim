@@ -144,6 +144,10 @@ jobs:
     needs:
       - tests
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      pull-requests: write
+      issues: write      # Needed for labeling
     steps:
       - uses: actions/checkout@v4
 
