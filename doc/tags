@@ -5,3 +5,4 @@ AvanteCody.setup()	avante-cody.txt	/*AvanteCody.setup()*
 AvanteCody.toggle()	avante-cody.txt	/*AvanteCody.toggle()*
 CodyProvider	avante-cody.txt	/*CodyProvider*
 CodyProvider:new()	avante-cody.txt	/*CodyProvider:new()*
+FileWriter	avante-cody.txt	/*FileWriter*
