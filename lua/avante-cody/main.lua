@@ -58,7 +58,7 @@ end
 --- Disables the plugin for the given tab, clear highlight groups and autocmds, closes side buffers and resets the internal state.
 ---
 --- @param provider_name string: internal identifier for logging purposes.
---- @param provider_opts AvanteCodyProviderOpts: internal identifier for logging purposes.
+--- @param provider_opts avante_cody.AvanteProviderOpts: provider configuration options.
 ---@private
 function main.register_provider(provider_name, provider_opts)
     local cody_provider = provider_facotry:new(provider_opts)
