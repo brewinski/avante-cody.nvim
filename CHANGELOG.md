@@ -1,5 +1,12 @@
 # Changelog
 
+## 1.0.0 (2025-04-29)
+
+
+### Bug Fixes
+
+* **provider:** remove empty test file. ([92dfca6](https://github.com/brewinski/avante-cody.nvim/commit/92dfca6666ac1712af1713f3df61e672e38ca6c3))
+
 ## [3.0.0](https://github.com/shortcuts/neovim-plugin-boilerplate/compare/v2.2.0...v3.0.0) (2024-09-25)
 
 
