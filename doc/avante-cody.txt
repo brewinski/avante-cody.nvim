@@ -1,22 +1,5 @@
 ==============================================================================
 ------------------------------------------------------------------------------
-                                                           *AvanteCody.toggle()*
-                             `AvanteCody.toggle`()
-Toggle the plugin by calling the `enable`/`disable` methods respectively.
-
-------------------------------------------------------------------------------
-                                                           *AvanteCody.enable()*
-                          `AvanteCody.enable`({scope})
-Initializes the plugin, sets event listeners and internal state.
-
-------------------------------------------------------------------------------
-                                                          *AvanteCody.disable()*
-                             `AvanteCody.disable`()
-Disables the plugin, clear highlight groups and autocmds, closes side buffers and resets the internal state.
-
-
-==============================================================================
-------------------------------------------------------------------------------
 Generating an access token: https://sourcegraph.com/docs/cli/how-tos/creating_an_access_token
 
 ------------------------------------------------------------------------------
