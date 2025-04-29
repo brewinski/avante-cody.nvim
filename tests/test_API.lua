@@ -25,17 +25,33 @@ T["setup()"]["sets exposed methods and default options value"] = function()
     -- global object that holds your plugin information
     Helpers.expect.global_type(child, "_G.AvanteCody", "table")
 
-    -- public methods
-    Helpers.expect.global_type(child, "_G.AvanteCody.toggle", "function")
-    Helpers.expect.global_type(child, "_G.AvanteCody.disable", "function")
-    Helpers.expect.global_type(child, "_G.AvanteCody.enable", "function")
-
     -- config
     Helpers.expect.global_type(child, "_G.AvanteCody.config", "table")
 
     -- assert the value, and the type
     Helpers.expect.config(child, "debug", false)
     Helpers.expect.config_type(child, "debug", "boolean")
+end
+
+T["setup()"]["updates the avante providers list when a new provider is registered"] = function()
+    child.lua([[require('avante-cody').setup({
+        providers = {
+          ['avante-cody'] = {
+            endpoint = 'https://sourcegraph.com',
+          },
+        },
+    })]])
+
+    -- read avante config value
+    local output = child.lua([[
+        local avante_config = require('avante.config') 
+        return avante_config._defaults.vendors["avante-cody"]
+    ]])
+
+    -- assert the value, and the type
+    Helpers.expect.equality(type(output), "table")
+    Helpers.expect.equality(output.endpoint, "https://sourcegraph.com")
+    Helpers.expect.equality(output.model, "anthropic::2024-10-22::claude-3-7-sonnet-latest")
 end
 
 T["setup()"]["overrides default values"] = function()
