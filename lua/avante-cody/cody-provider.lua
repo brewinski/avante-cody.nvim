@@ -138,7 +138,7 @@ end
 
 function CodyProvider:parse_messages(opts)
     local messages = {
-        { role = "system", text = opts.system_prompt },
+        { speaker = self.role_map.system, text = opts.system_prompt },
     }
 
     vim.iter(self:parse_context_messages(self.cody_context)):each(function(msg)
@@ -322,6 +322,31 @@ function CodyProvider:parse_config(opts)
             end)
 end
 
+---@class avante_cody.CodyProviderCurlHeaders
+---@field Content-Type string
+---@field Authorization string
+---
+---@class avante_cody.CodyProviderCurlMessages
+---@field role string
+---@field content string
+---
+---@class avante_cody.CodyProviderCurlBody
+---@field model string
+---@field messages avante_cody.CodyProviderCurlMessages
+---@field temperature number
+---@field topK integer
+---@field topP number
+---@field stream boolean
+---@field maxTokensToSample integer
+---
+---@class avante_cody.CodyProviderCurlArgs
+---@field url string
+---@field timeout integer
+---@field headers avante_cody.CodyProviderCurlHeaders
+---@field body avante_cody.CodyProviderCurlBody
+---@field insecure boolean
+
+--- @return avante_cody.CodyProviderCurlArgs
 function CodyProvider.parse_curl_args(provider, code_opts)
     log.debug(LOG_SCOPE, "parse_curl_args: args: %s", vim.inspect(code_opts, { newline = "" }))
     local base, body_opts = provider:parse_config(provider)
@@ -352,11 +377,11 @@ function CodyProvider.parse_curl_args(provider, code_opts)
         url = base.endpoint
             .. "/.api/completions/stream?api-version=7&client-name=vscode&client-version=1.34.3",
         timeout = base.timeout,
-        insecure = false,
+        insecure = base.allow_insecure,
         headers = headers,
         body = vim.tbl_deep_extend("force", {
             model = base.model,
-            temperature = body_opts.tmemperature,
+            temperature = body_opts.temperature,
             topK = body_opts.topK,
             topP = body_opts.topP,
             maxTokensToSample = provider.max_output_tokens,

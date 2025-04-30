@@ -1,5 +1,6 @@
 AvanteCody.options	avante-cody.txt	/*AvanteCody.options*
 AvanteCody.setup()	avante-cody.txt	/*AvanteCody.setup()*
 CodyProvider	avante-cody.txt	/*CodyProvider*
+CodyProvider.parse_curl_args()	avante-cody.txt	/*CodyProvider.parse_curl_args()*
 CodyProvider:new()	avante-cody.txt	/*CodyProvider:new()*
 FileWriter	avante-cody.txt	/*FileWriter*

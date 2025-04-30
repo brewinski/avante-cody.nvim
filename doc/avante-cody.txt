@@ -56,6 +56,41 @@ Parameters ~
 Return ~
 `(avante_cody.AvanteProviderFunctor)`
 
+------------------------------------------------------------------------------
+Class ~
+{avante_cody.CodyProviderCurlHeaders}
+Fields ~
+{Content-Type} `(string)`
+{Authorization} `(string)`
+
+Class ~
+{avante_cody.CodyProviderCurlMessages}
+{role} `(string)`
+{content} `(string)`
+
+Class ~
+{avante_cody.CodyProviderCurlBody}
+{model} `(string)`
+{messages} `(avante_cody.CodyProviderCurlMessages)`
+{temperature} `(number)`
+{topK} `(integer)`
+{topP} `(number)`
+{stream} `(boolean)`
+{maxTokensToSample} `(integer)`
+
+Class ~
+{avante_cody.CodyProviderCurlArgs}
+{url} `(string)`
+{timeout} `(integer)`
+{headers} `(avante_cody.CodyProviderCurlHeaders)`
+{body} `(avante_cody.CodyProviderCurlBody)`
+{insecure} `(boolean)`
+
+------------------------------------------------------------------------------
+                                                *CodyProvider.parse_curl_args()*
+            `CodyProvider.parse_curl_args`({provider}, {code_opts})
+@return avante_cody.CodyProviderCurlArgs
+
 
 ==============================================================================
 ------------------------------------------------------------------------------
