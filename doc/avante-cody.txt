@@ -65,8 +65,8 @@ Fields ~
 
 Class ~
 {avante_cody.CodyProviderCurlMessages}
-{role} `(string)`
-{content} `(string)`
+{speaker} `(string)`
+{text} `(string)`
 
 Class ~
 {avante_cody.CodyProviderCurlBody}

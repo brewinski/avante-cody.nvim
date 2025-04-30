@@ -53,9 +53,9 @@ local T = new_set({
     },
 })
 
-T["cody-provider"] = new_set()
+T["cody-provider:parse_curl_args()"] = new_set()
 
-T["cody-provider"]["provider configuration is added to the curl request and the correct headers are set."] = function()
+T["cody-provider:parse_curl_args()"]["configuration is added to the curl request and the correct headers are set."] = function()
     --- @type avante_cody.AvanteProviderOpts
     local config = {
         endpoint = "https://myinstance.sourcegraph.com",
@@ -100,125 +100,9 @@ T["cody-provider"]["provider configuration is added to the curl request and the 
 
     -- assert the headers are correct, including the api key
     eq(result.headers.Authorization, "token " .. test_api_key)
-end
 
--- T["cody-provider"]["will parse curl args correctly"] = function()
---     local test_input = {
---         messages = {
---             { role = "user", content = "this is a user message" },
---             { role = "assistant", content = "this is an assistant message" },
---             { role = "system", content = "this is a system message" },
---         },
---         tool_histories = {
---             {
---                 tool_result = {
---                     content = '[".","stylua.toml","README.md","Makefile","CHANGELOG.md","LICENSE","FUNDING.yml"]',
---                     is_error = false,
---                     tool_use_id = "toolu_01HrktowMGZPYa31ZWuvgUfn",
---                 },
---                 tool_use = {
---                     id = "toolu_01HrktowMGZPYa31ZWuvgUfn",
---                     input_json = '{"rel_path": ".", "max_depth": 1}',
---                     name = "ls",
---                 },
---             },
---         },
---         tools = {
---             {
---                 description = 'Fast file pattern matching using glob patterns like "**/*.js", in current project scope',
---                 func = nil,
---                 name = "glob",
---                 param = {
---                     fields = {
---                         {
---                             description = "Glob pattern",
---                             name = "pattern",
---                             type = "string",
---                         },
---                         {
---                             description = "Relative path to the project directory, as cwd",
---                             name = "rel_path",
---                             type = "string",
---                         },
---                     },
---                     type = "table",
---                 },
---                 returns = {
---                     {
---                         description = "List of matched files",
---                         name = "matches",
---                         type = "string",
---                     },
---                     {
---                         description = "Error message",
---                         name = "err",
---                         optional = true,
---                         type = "string",
---                     },
---                 },
---             },
---         },
---     }
---
---     local expect = {
---         body = {
---             maxTokensToSample = 4000,
---             messages = {
---                 {
---                     speaker = "human",
---                     text = "this is a user message",
---                 },
---                 {
---                     speaker = "assistant",
---                     text = "this is an assistant message",
---                 },
---                 {
---                     speaker = "system",
---                     text = "this is a system message",
---                 },
---             },
---             model = "anthropic::2024-10-22::claude-3-7-sonnet-latest",
---             stream = true,
---             topK = -1,
---             topP = -1,
---         },
---         headers = {
---             Authorization = "token sgp_test-token",
---             ["Content-Type"] = "application/json",
---         },
---         insecure = false,
---         timeout = 30000,
---         url = "https://sourcegraph.com/.api/completions/stream?api-version=7&client-name=vscode&client-version=1.34.3",
---     }
---
---     local script = string.format(
---         [[
---         local avante_config = require('avante.config')
---         local provider = avante_config._defaults.vendors["avante-cody"]
---
---         provider.parse_api_key = function() return "sgp_test-token" end
---
---         return provider.parse_curl_args(
---             provider,
---             %s
---         )
---     ]],
---         vim.inspect(test_input, { newline = "" })
---     )
---
---     child.lua([[require('avante-cody').setup({
---         providers = {
---           ['avante-cody'] = {
---             endpoint = 'https://sourcegraph.com',
---           },
---         },
---     })]])
---
---     -- read avante config value
---     local output = child.lua(script)
---
---     -- assert the value, and the type
---     eq(output, expect)
--- end
+    -- assert that the system message is correctly formatted
+    eq(result.body.messages[1], { speaker = "system", text = "this is a system prompt" })
+end
 
 return T

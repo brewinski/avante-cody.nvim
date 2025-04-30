@@ -327,8 +327,8 @@ end
 ---@field Authorization string
 ---
 ---@class avante_cody.CodyProviderCurlMessages
----@field role string
----@field content string
+---@field speaker string
+---@field text string
 ---
 ---@class avante_cody.CodyProviderCurlBody
 ---@field model string
