@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.1.0](https://github.com/brewinski/avante-cody.nvim/compare/v1.0.1...v1.1.0) (2025-04-30)
+
+
+### Features
+
+* **cody-provider:** improve tool use functionality and type definitions ([3d93e65](https://github.com/brewinski/avante-cody.nvim/commit/3d93e657259735823db7d2f7339a5e23b3227389))
+
 ## [1.0.1](https://github.com/brewinski/avante-cody.nvim/compare/v1.0.0...v1.0.1) (2025-04-30)
 
 
