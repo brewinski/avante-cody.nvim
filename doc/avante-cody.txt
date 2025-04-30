@@ -58,6 +58,16 @@ Return ~
 
 ------------------------------------------------------------------------------
 Class ~
+{avante_cody.CodyProviderCodyTool}
+Fields ~
+{name} `(string)`
+{description} `(string)`
+{parameters} `({ type: string, properties: { [string]: { type: string, description: string }, additionalProperties: boolean, required: string[] } })`
+{type} `(string)`
+{id} `(string)`
+
+------------------------------------------------------------------------------
+Class ~
 {avante_cody.CodyProviderCurlHeaders}
 Fields ~
 {Content-Type} `(string)`
@@ -77,6 +87,7 @@ Class ~
 {topP} `(number)`
 {stream} `(boolean)`
 {maxTokensToSample} `(integer)`
+{tools} `({ type: string, ["function"]: avante_cody.CodyProviderCodyTool }[])`
 
 Class ~
 {avante_cody.CodyProviderCurlArgs}

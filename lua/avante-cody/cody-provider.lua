@@ -151,11 +151,37 @@ function CodyProvider:parse_messages(opts)
 
     if opts.tool_histories then
         for _, tool_history in ipairs(opts.tool_histories) do
-            table.insert(messages, {
+            -- push an assistant message
+            local assistant_message = {
+                speaker = "assistant",
+                content = {
+                    { type = "text", text = "call this tool for me" },
+                    {
+                        type = "tool_call",
+                        tool_call = {
+                            id = tool_history.tool_use.id,
+                            name = tool_history.tool_use.name,
+                            arguments = tool_history.tool_use.input_json,
+                        },
+                    },
+                },
+            }
+
+            local human_message = {
                 speaker = "user",
-                content = tool_history.tool_result.content,
-                tool_call_id = tool_history.tool_result.tool_use_id,
-            })
+                content = {
+                    {
+                        type = "tool_result",
+                        tool_result = {
+                            id = tool_history.tool_result.tool_use_id,
+                            content = tool_history.tool_result.content,
+                        },
+                    },
+                },
+            }
+
+            table.insert(messages, assistant_message)
+            table.insert(messages, human_message)
         end
     end
 
@@ -322,6 +348,13 @@ function CodyProvider:parse_config(opts)
             end)
 end
 
+---@class avante_cody.CodyProviderCodyTool
+---@field name string
+---@field description string
+---@field parameters { type: string, properties: { [string]: { type: string, description: string }, additionalProperties: boolean, required: string[] } }
+---@field type string
+---@field id string
+
 ---@class avante_cody.CodyProviderCurlHeaders
 ---@field Content-Type string
 ---@field Authorization string
@@ -338,6 +371,7 @@ end
 ---@field topP number
 ---@field stream boolean
 ---@field maxTokensToSample integer
+---@field tools { type: string, ["function"]: avante_cody.CodyProviderCodyTool }[]
 ---
 ---@class avante_cody.CodyProviderCurlArgs
 ---@field url string
@@ -373,7 +407,6 @@ function CodyProvider.parse_curl_args(provider, code_opts)
     local messages = provider:parse_messages(code_opts)
 
     return {
-        -- url = base.endpoint .. '/.api/llm/chat/completions',
         url = base.endpoint
             .. "/.api/completions/stream?api-version=7&client-name=vscode&client-version=1.34.3",
         timeout = base.timeout,

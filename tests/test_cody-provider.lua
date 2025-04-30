@@ -4,6 +4,57 @@ local starts_with = MiniTest.expect.starts_with
 local Helpers = dofile("tests/helpers.lua")
 
 local child = Helpers.new_child_neovim()
+-- { {
+--     ["function"] = {
+--       description = "List files and directories in a given path in current project scope",
+--       name = "ls",
+--       parameters = {
+--         additionalProperties = false,
+--         properties = {
+--           max_depth = {
+--             description = "Maximum depth of the directory",
+--             type = "integer"
+--           },
+--           rel_path = {
+--             description = "Relative path to the project directory",
+--             type = "string"
+--           }
+--         },
+--         required = { "rel_path", "max_depth" },
+--         type = "object"
+--       }
+--     },
+--     type = "function"
+--   } }
+
+local tools = {
+    {
+        description = "List files and directories in a given path in current project scope",
+        name = "ls",
+        param = {
+            fields = {
+                {
+                    description = "Relative path to the project directory",
+                    name = "rel_path",
+                    type = "string",
+                },
+                {
+                    description = "Maximum depth of the directory",
+                    name = "max_depth",
+                    type = "integer",
+                },
+            },
+            type = "table",
+        },
+        returns = {
+            {
+                description = "List of file paths and directorie paths in the given directory",
+                name = "entries",
+                type = "string[]",
+            },
+        },
+    },
+}
 
 local test_api_key = "sgp_test-token"
 
@@ -103,6 +154,167 @@ T["cody-provider:parse_curl_args()"]["configuration is added to the curl request
 
     -- assert that the system message is correctly formatted
     eq(result.body.messages[1], { speaker = "system", text = "this is a system prompt" })
+end
+
+T["cody-provider:parse_curl_args()"]["tools are parsed from avantes format to sourcegraph format."] = function()
+    --- @type avante_cody.AvanteProviderOpts
+    local config = {}
+
+    local input = {
+        system_prompt = "this is a system prompt",
+        messages = {
+            { role = "user", content = "this is a user message" },
+        },
+        tools = tools,
+    }
+
+    child.lua(setup_plugin_script(config))
+
+    -- read avante config value
+    ---@type avante_cody.CodyProviderCurlArgs
+    local result = child.lua(parse_curl_args_script(test_api_key, input))
+
+    -- expect tools to be appended to the curl request body.
+    eq(result.body.tools, {
+        {
+            ["function"] = {
+                description = "List files and directories in a given path in current project scope",
+                name = "ls",
+                parameters = {
+                    additionalProperties = false,
+                    properties = {
+                        max_depth = {
+                            description = "Maximum depth of the directory",
+                            type = "integer",
+                        },
+                        rel_path = {
+                            description = "Relative path to the project directory",
+                            type = "string",
+                        },
+                    },
+                    required = { "rel_path", "max_depth" },
+                    type = "object",
+                },
+            },
+            type = "function",
+        },
+    })
+end
+
+T["cody-provider:parse_curl_args()"]["system prompt is appended as the leading message and tool result message is appended after the assistant tool call."] = function()
+    --- @type avante_cody.AvanteProviderOpts
+    local config = {}
+
+    local input = {
+        system_prompt = "this is a system prompt",
+        messages = {
+            { role = "user", content = "this is a user message" },
+        },
+        tool_histories = {
+            {
+                tool_result = {
+                    content = '[".","stylua.toml","readme.md","changelog.md","license","funding.yml","makefile"]',
+                    is_error = false,
+                    tool_use_id = "toolu_016sbqPrbG5pim5mKgZu4vgx",
+                },
+                tool_use = {
+                    id = "toolu_016sbqPrbG5pim5mKgZu4vgx",
+                    input_json = '{"rel_path": ".", "max_depth": 1}',
+                    name = "ls",
+                },
+            },
+            {
+                tool_result = {
+                    content = '[".","stylua.toml","README.md","Makefile","CHANGELOG.md","LICENSE","FUNDING.yml"]',
+                    is_error = false,
+                    tool_use_id = "toolu_016twZUJ28kG35dLwdSfxDEi",
+                },
+                tool_use = {
+                    id = "toolu_016twZUJ28kG35dLwdSfxDEi",
+                    input_json = '{"rel_path": ".", "max_depth": 1}',
+                    name = "ls",
+                },
+            },
+        },
+        tools = tools,
+    }
+
+    child.lua(setup_plugin_script(config))
+
+    -- read avante config value
+    ---@type avante_cody.CodyProviderCurlArgs
+    local result = child.lua(parse_curl_args_script(test_api_key, input))
+
+    -- assert that the system message is correctly formatted
+    local system_prompt = result.body.messages[1]
+    eq(system_prompt, { speaker = "system", text = "this is a system prompt" })
+
+    -- existing messages should come after the system prompt
+    local user_message = result.body.messages[2]
+    eq(user_message, { speaker = "human", text = "this is a user message" })
+
+    -- tool use messages should be appended at the end and should be in the correct order.
+    -- Assistant tool call message should always be followed by a user tool result message
+    local tool_use_1 = result.body.messages[3]
+    local tool_result_1 = result.body.messages[4]
+    eq(tool_use_1, {
+        speaker = "assistant",
+        content = {
+            { type = "text", text = "call this tool for me" },
+            {
+                type = "tool_call",
+                tool_call = {
+                    id = "toolu_016sbqPrbG5pim5mKgZu4vgx",
+                    name = "ls",
+                    arguments = '{"rel_path": ".", "max_depth": 1}',
+                },
+            },
+        },
+    })
+
+    eq(tool_result_1, {
+        speaker = "user",
+        content = {
+            {
+                type = "tool_result",
+                tool_result = {
+                    id = "toolu_016sbqPrbG5pim5mKgZu4vgx",
+                    content = '[".","stylua.toml","readme.md","changelog.md","license","funding.yml","makefile"]',
+                },
+            },
+        },
+    })
+
+    -- tool use messages should be added in order. I expect to see the second tool call and result in positions 5 and 6
+    local tool_use_2 = result.body.messages[5]
+    local tool_result_2 = result.body.messages[6]
+    eq(tool_use_2, {
+        speaker = "assistant",
+        content = {
+            { type = "text", text = "call this tool for me" },
+            {
+                type = "tool_call",
+                tool_call = {
+                    id = "toolu_016twZUJ28kG35dLwdSfxDEi",
+                    name = "ls",
+                    arguments = '{"rel_path": ".", "max_depth": 1}',
+                },
+            },
+        },
+    })
+
+    eq(tool_result_2, {
+        speaker = "user",
+        content = {
+            {
+                type = "tool_result",
+                tool_result = {
+                    id = "toolu_016twZUJ28kG35dLwdSfxDEi",
+                    content = '[".","stylua.toml","README.md","Makefile","CHANGELOG.md","LICENSE","FUNDING.yml"]',
+                },
+            },
+        },
+    })
 end
 
 return T
