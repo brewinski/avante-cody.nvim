@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.0.1](https://github.com/brewinski/avante-cody.nvim/compare/v1.0.0...v1.0.1) (2025-04-30)
+
+
+### Bug Fixes
+
+* **cody-provider:** correct API request formatting and type annotations ([7a1277b](https://github.com/brewinski/avante-cody.nvim/commit/7a1277be018a09d944dcbd171f1653192e796a76))
+
 ## 1.0.0 (2025-04-29)
 
 
