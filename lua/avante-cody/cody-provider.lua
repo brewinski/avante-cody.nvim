@@ -247,7 +247,7 @@ function CodyProvider.parse_response(_, ctx, data_stream, event_state, opts)
                 data_stream = data_stream,
             }, { newline = "" })
         )
-        opts.on_stop({ error = string.format("error: %s", data_stream) })
+        opts.on_stop({ reason = "error", error = string.format("error: %s", data_stream) })
         return
     end
 
