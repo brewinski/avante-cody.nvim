@@ -1,4 +1,5 @@
 local log = require("avante-cody.util.log")
+local HistoryMessage = require("avante.history_message")
 
 local LOG_SCOPE = "cody-provider"
 
@@ -331,6 +332,63 @@ function CodyProvider:parse_response_without_stream(data, state, opts)
     opts.on_stop({})
 end
 
+function CodyProvider:add_tool_use_message(tool_use, state, opts)
+    local jsn = nil
+    if state == "generated" then
+        jsn = vim.json.decode(tool_use.input_json)
+    end
+    local msg = HistoryMessage:new({
+        role = "assistant",
+        content = {
+            {
+                type = "tool_use",
+                name = tool_use.name,
+                id = tool_use.id,
+                input = jsn or {},
+            },
+        },
+    }, {
+        state = state,
+        uuid = tool_use.uuid,
+    })
+    tool_use.uuid = msg.uuid
+    tool_use.state = state
+    if opts.on_messages_add then
+        opts.on_messages_add({ msg })
+    end
+end
+
+function CodyProvider:add_text_message(ctx, text, state, opts)
+    if ctx.content == nil then
+        ctx.content = ""
+    end
+    ctx.content = ctx.content .. text
+    local msg = HistoryMessage:new({
+        role = "assistant",
+        content = ctx.content,
+    }, {
+        state = state,
+        uuid = ctx.content_uuid,
+    })
+    ctx.content_uuid = msg.uuid
+    if opts.on_messages_add then
+        opts.on_messages_add({ msg })
+    end
+end
+
+function CodyProvider:finish_pending_messages(ctx, opts)
+    if ctx.content ~= nil and ctx.content ~= "" then
+        self:add_text_message(ctx, "", "generated", opts)
+    end
+    if ctx.tool_use_list then
+        for _, tool_use in ipairs(ctx.tool_use_list) do
+            if tool_use.state == "generating" then
+                self:add_tool_use_message(tool_use, "generated", opts)
+            end
+        end
+    end
+end
+
 ---@class avante_cody.AvanteOnStopOpts
 ---@field reason? string
 ---@field error? string
@@ -347,7 +405,7 @@ end
 ---@param data_stream string
 ---@param event_state string
 ---@param opts avante_cody.AvanteParseResponseOpts
-function CodyProvider.parse_response(_, ctx, data_stream, event_state, opts)
+function CodyProvider.parse_response(self, ctx, data_stream, event_state, opts)
     log.debug(
         LOG_SCOPE,
         "parse_response: args: %s",
@@ -360,7 +418,10 @@ function CodyProvider.parse_response(_, ctx, data_stream, event_state, opts)
     )
 
     if event_state == "done" then
-        opts.on_stop({})
+        self:finish_pending_messages(ctx, opts)
+        if opts.on_stop then
+            opts.on_stop({})
+        end
         return
     end
 
@@ -388,7 +449,11 @@ function CodyProvider.parse_response(_, ctx, data_stream, event_state, opts)
     local usage = json.usage
 
     if delta ~= nil and delta ~= "" then
-        opts.on_chunk(delta)
+        if opts.on_chunk then
+            opts.on_chunk(delta)
+        end
+
+        self:add_text_message(ctx, delta, "generating", opts)
     end
 
     if tool_use and tool_use[1] then
@@ -415,9 +480,13 @@ function CodyProvider.parse_response(_, ctx, data_stream, event_state, opts)
         current_tool.input_json = current_tool.input_json .. tool["function"].arguments
 
         ctx.tool_use[1] = current_tool
+        self:add_tool_use_message(current_tool, "generating", opts)
     end
 
     if stopReason == "tool_use" then
+        local prev_tool_use = ctx.tool_use[1]
+        self:add_tool_use_message(prev_tool_use, "generated", opts)
+        -- self:finish_pending_messages(ctx, opts)
         opts.on_stop({
             reason = "tool_use",
             usage = usage,
@@ -427,7 +496,6 @@ function CodyProvider.parse_response(_, ctx, data_stream, event_state, opts)
     end
 
     if stopReason == "end_turn" then
-        -- opts.on_chunk('\n\n## context files:\n  - ' .. table.concat(M.get_context_file_list(M.cody_context), '\n  - '))
         opts.on_stop({ reason = "complete", useage = usage })
         return
     end
