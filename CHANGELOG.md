@@ -1,5 +1,13 @@
 # Changelog
 
+## [1.1.1](https://github.com/brewinski/avante-cody.nvim/compare/v1.1.0...v1.1.1) (2025-05-01)
+
+
+### Bug Fixes
+
+* **cody-provider:** add missing error reason in parse_response ([465f1f7](https://github.com/brewinski/avante-cody.nvim/commit/465f1f76b07858925e98782bb79204767b7967a7))
+* **provider:** properly handle tool call and tool result messages ([04de9cc](https://github.com/brewinski/avante-cody.nvim/commit/04de9cc946a606f901dd856e81081bf7abf5ac2c))
+
 ## [1.1.0](https://github.com/brewinski/avante-cody.nvim/compare/v1.0.1...v1.1.0) (2025-04-30)
 
 
