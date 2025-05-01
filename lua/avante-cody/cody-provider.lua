@@ -222,6 +222,22 @@ function CodyProvider:parse_response_without_stream(data, state, opts)
     opts.on_stop({})
 end
 
+---@class avante_cody.AvanteOnStopOpts
+---@field reason? string
+---@field error? string
+---@field tool_use_list? table
+---@field usage? table
+---@field stopReason? string
+---
+
+---@class avante_cody.AvanteParseResponseOpts
+---@field on_stop fun(opts: {})
+---@field on_chunk fun(chunk: string)
+
+---@param ctx any
+---@param data_stream string
+---@param event_state string
+---@param opts avante_cody.AvanteParseResponseOpts
 function CodyProvider.parse_response(_, ctx, data_stream, event_state, opts)
     log.debug(
         LOG_SCOPE,

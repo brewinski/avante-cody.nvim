@@ -1,31 +1,8 @@
 local new_set = MiniTest.new_set
 local eq = MiniTest.expect.equality
-local starts_with = MiniTest.expect.starts_with
 local Helpers = dofile("tests/helpers.lua")
 
 local child = Helpers.new_child_neovim()
--- { {
---     ["function"] = {
---       description = "List files and directories in a given path in current project scope",
---       name = "ls",
---       parameters = {
---         additionalProperties = false,
---         properties = {
---           max_depth = {
---             description = "Maximum depth of the directory",
---             type = "integer"
---           },
---           rel_path = {
---             description = "Relative path to the project directory",
---             type = "string"
---           }
---         },
---         required = { "rel_path", "max_depth" },
---         type = "object"
---       }
---     },
---     type = "function"
---   } }
 
 local tools = {
     {
@@ -315,6 +292,58 @@ T["cody-provider:parse_curl_args()"]["system prompt is appended as the leading m
             },
         },
     })
+end
+
+local parse_response_script = function(ctx, data_stream, event_state)
+    return string.format(
+        [[
+        local avante_config = require('avante.config')
+        local provider = avante_config._defaults.vendors["avante-cody"]
+
+        local on_stop_result = {}
+        local on_chunk_result = {}
+
+        local opts = {
+            on_stop = function(opts) 
+                on_stop_result = opts
+            end,
+
+            on_chunk = function(opts) 
+               on_chunk_result = opts
+            end
+        }
+
+        provider.parse_response(
+            provider,
+            %s,
+            '%s',
+            "%s",
+            opts
+        )
+
+        return on_stop_result, on_chunk_result
+    ]],
+        vim.inspect(ctx, { newline = "" }),
+        data_stream,
+        event_state
+    )
+end
+
+T["cody-provider:parse_response()"] = new_set()
+
+T["cody-provider:parse_response()"]["reports API error message in call to on_stop"] = function()
+    local config = {}
+    child.lua(setup_plugin_script(config))
+
+    -- read avante config value
+    ---@type avante_cody.AvanteOnStopOpts, string
+    local on_stop_call, on_chunk_call =
+        child.lua(parse_response_script({}, '{ error = "API error" }', "error"))
+
+    eq(on_stop_call.error, 'error: { error = "API error" }')
+    eq(on_stop_call.reason, "error")
+
+    eq(on_chunk_call, nil)
 end
 
 return T

@@ -58,6 +58,32 @@ Return ~
 
 ------------------------------------------------------------------------------
 Class ~
+{avante_cody.AvanteOnStopOpts}
+Fields ~
+{reason} `(optional)` `(string)`
+{error} `(optional)` `(string)`
+{tool_use_list} `(optional)` `(table)`
+{usage} `(optional)` `(table)`
+{stopReason} `(optional)` `(string)`
+
+------------------------------------------------------------------------------
+Class ~
+{avante_cody.AvanteParseResponseOpts}
+Fields ~
+{on_stop} `(fun(opts: {}))`
+{on_chunk} `(fun(chunk: string))`
+
+------------------------------------------------------------------------------
+                                                 *CodyProvider.parse_response()*
+`CodyProvider.parse_response`({_}, {ctx}, {data_stream}, {event_state}, {opts})
+Parameters ~
+{ctx} `(any)`
+{data_stream} `(string)`
+{event_state} `(string)`
+{opts} `(avante_cody.AvanteParseResponseOpts)`
+
+------------------------------------------------------------------------------
+Class ~
 {avante_cody.CodyProviderCodyTool}
 Fields ~
 {name} `(string)`
