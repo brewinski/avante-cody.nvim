@@ -329,6 +329,127 @@ local parse_response_script = function(ctx, data_stream, event_state)
     )
 end
 
+T["cody-provider:parse_curl_args()"]["correctly parses assistant tool calls and user tool results from message content"] = function()
+    --- @type avante_cody.AvanteProviderOpts
+    local config = {}
+
+    local input = {
+        system_prompt = "this is a system prompt",
+        messages = {
+            -- User normal message
+            { role = "user", content = "Can you list the files in the current directory?" },
+            -- Assistant tool call in content
+            {
+                role = "assistant",
+                content = {
+                    {
+                        id = "tool_call_123456",
+                        name = "ls",
+                        input = {
+                            rel_path = ".",
+                            max_depth = 1,
+                        },
+                    },
+                },
+            },
+            -- User tool result in content
+            {
+                role = "user",
+                content = {
+                    {
+                        tool_use_id = "tool_call_123456",
+                        content = '["file1.txt", "file2.lua", "README.md"]',
+                    },
+                },
+            },
+            -- Normal assistant response
+            { role = "assistant", content = "I found 3 files in the directory." },
+            -- Another tool call sequence
+            {
+                role = "assistant",
+                content = {
+                    {
+                        id = "tool_call_abcdef",
+                        name = "grep",
+                        input = {
+                            query = "function",
+                            rel_path = "src",
+                        },
+                    },
+                },
+            },
+            -- Response to second tool call
+            {
+                role = "user",
+                content = {
+                    {
+                        tool_use_id = "tool_call_abcdef",
+                        content = "src/main.lua:10:function setup()\nsrc/utils.lua:5:function helper()",
+                    },
+                },
+            },
+        },
+        tools = tools,
+    }
+
+    child.lua(setup_plugin_script(config))
+
+    -- read avante config value
+    ---@type avante_cody.CodyProviderCurlArgs
+    local result = child.lua(parse_curl_args_script(test_api_key, input))
+
+    -- check system prompt
+    local system_prompt = result.body.messages[1]
+    eq(system_prompt, { speaker = "system", text = "this is a system prompt" })
+
+    -- check first user message
+    local msg1 = result.body.messages[2]
+    eq(msg1, { speaker = "human", text = "Can you list the files in the current directory?" })
+
+    -- check assistant tool call
+    local tool_call_msg = result.body.messages[3]
+    eq(tool_call_msg.speaker, "assistant")
+    eq(type(tool_call_msg.content), "table")
+    eq(tool_call_msg.content[1].type, "text")
+    eq(tool_call_msg.content[2].type, "tool_call")
+    eq(tool_call_msg.content[2].tool_call.id, "tool_call_123456")
+    eq(tool_call_msg.content[2].tool_call.name, "ls")
+    -- Check if arguments is valid JSON with correct content
+    local args = vim.json.decode(tool_call_msg.content[2].tool_call.arguments)
+    eq(args.rel_path, ".")
+    eq(args.max_depth, 1)
+
+    -- check user tool result
+    local tool_result_msg = result.body.messages[4]
+    eq(tool_result_msg.speaker, "human")
+    eq(type(tool_result_msg.content), "table")
+    eq(tool_result_msg.content[1].type, "tool_result")
+    eq(tool_result_msg.content[1].tool_result.id, "tool_call_123456")
+    eq(tool_result_msg.content[1].tool_result.content, '["file1.txt", "file2.lua", "README.md"]')
+
+    -- check normal assistant response
+    local msg2 = result.body.messages[5]
+    eq(msg2, { speaker = "assistant", text = "I found 3 files in the directory." })
+
+    -- check second tool call
+    local tool_call_msg2 = result.body.messages[6]
+    eq(tool_call_msg2.speaker, "assistant")
+    eq(tool_call_msg2.content[2].tool_call.id, "tool_call_abcdef")
+    eq(tool_call_msg2.content[2].tool_call.name, "grep")
+    local args2 = vim.json.decode(tool_call_msg2.content[2].tool_call.arguments)
+    eq(args2.query, "function")
+    eq(args2.rel_path, "src")
+
+    -- check second tool result
+    local tool_result_msg2 = result.body.messages[7]
+    eq(tool_result_msg2.speaker, "human")
+    eq(tool_result_msg2.content[1].tool_result.id, "tool_call_abcdef")
+    eq(
+        tool_result_msg2.content[1].tool_result.content,
+        "src/main.lua:10:function setup()\nsrc/utils.lua:5:function helper()"
+    )
+end
+
 T["cody-provider:parse_response()"] = new_set()
 
 T["cody-provider:parse_response()"]["reports API error message in call to on_stop"] = function()

@@ -58,6 +58,103 @@ Return ~
 
 ------------------------------------------------------------------------------
 Class ~
+{CodeContextBlob}
+Fields ~
+{blob} `(table)` Information about the code file
+{blob.path} `(string)` Path to the code file
+{chunkContent} `(string)` Content of the code chunk
+
+------------------------------------------------------------------------------
+                                         *CodyProvider:parse_context_messages()*
+                `CodyProvider:parse_context_messages`({context})
+Parse codebase context into conversation messages
+Parameters ~
+{context} `(CodeContextBlob[])` List of code context blobs
+Return ~
+`(ParsedMessage[])` List of parsed context messages
+
+------------------------------------------------------------------------------
+                                           *CodyProvider:add_user_tool_result()*
+     `CodyProvider:add_user_tool_result`({messages}, {msg}, {msg_content})
+Add a user tool result message to the message list
+Parameters ~
+{messages} `(ParsedMessage[])` The messages table to append to
+{msg} `(CodyMessage)` The original message from the user
+{msg_content} `(CodyToolMessageContent)` The content portion of the message
+
+------------------------------------------------------------------------------
+                                        *CodyProvider:add_assistant_tool_call()*
+    `CodyProvider:add_assistant_tool_call`({messages}, {msg}, {msg_content})
+Add an assistant tool call message to the message list
+Parameters ~
+{messages} `(ParsedMessage[])` The messages table to append to
+{msg} `(CodyMessage)` The original message from the assistant
+{msg_content} `(CodyToolMessageContent)` The content portion of the message
+
+------------------------------------------------------------------------------
+                                          *CodyProvider:append_tool_histories()*
+       `CodyProvider:append_tool_histories`({messages}, {tool_histories})
+Process and append tool histories to the messages list
+Parameters ~
+{messages} `(ParsedMessage[])` The messages table to append to
+{tool_histories} `(CodyToolHistory[])` List of tool history entries to process
+
+------------------------------------------------------------------------------
+Class ~
+{CodyToolMessageContent}
+Fields ~
+{id} `(string)` The ID of the tool call
+{name} `(string)` The name of the tool
+{input} `(table|string)` The input to the tool
+{tool_use_id} `(string)` ID of the tool use (for tool results)
+{content} `(string)` Content of the tool result
+
+------------------------------------------------------------------------------
+Class ~
+{CodyMessage}
+Fields ~
+{role} `(string)` The role of the message sender (user, assistant, system)
+{content} `(string|table)` Either a string for plain text or a table for tool calls/results
+
+------------------------------------------------------------------------------
+Class ~
+{CodyToolHistory}
+Fields ~
+{tool_use} `(table)` Information about the tool use
+{tool_use.id} `(string)` ID of the tool use
+{tool_use.name} `(string)` Name of the tool
+{tool_use.input_json} `(string)` JSON string of the tool arguments
+{tool_result} `(table)` Information about the tool result
+{tool_result.tool_use_id} `(string)` ID of the associated tool use
+{tool_result.content} `(string)` Content of the tool result
+
+------------------------------------------------------------------------------
+Class ~
+{ParseMessagesOpts}
+Fields ~
+{system_prompt} `(string)` The system prompt text
+{messages} `(CodyMessage[])` List of messages in the conversation
+{tool_histories} `(optional)` `(CodyToolHistory[])` Optional list of tool use histories
+
+------------------------------------------------------------------------------
+Class ~
+{ParsedMessage}
+Fields ~
+{speaker} `(string)` The speaker role mapped to Cody format
+{text} `(optional)` `(string)` The message text (for plain text messages)
+{content} `(optional)` `(table)` The content for tool calls or results
+
+------------------------------------------------------------------------------
+                                                 *CodyProvider:parse_messages()*
+                     `CodyProvider:parse_messages`({opts})
+Parse conversation messages into the format required by Cody API
+Parameters ~
+{opts} `(ParseMessagesOpts)` Options containing the conversation data
+Return ~
+`(ParsedMessage[])` List of parsed messages in Cody format
+
+------------------------------------------------------------------------------
+Class ~
 {avante_cody.AvanteOnStopOpts}
 Fields ~
 {reason} `(optional)` `(string)`

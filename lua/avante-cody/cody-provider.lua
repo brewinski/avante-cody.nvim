@@ -115,6 +115,14 @@ function CodyProvider:transform_tool(tool)
     return res
 end
 
+---@class CodeContextBlob
+---@field blob table Information about the code file
+---@field blob.path string Path to the code file
+---@field chunkContent string Content of the code chunk
+
+--- Parse codebase context into conversation messages
+---@param context CodeContextBlob[] List of code context blobs
+---@return ParsedMessage[] List of parsed context messages
 function CodyProvider:parse_context_messages(context)
     local codebase_context = {}
 
@@ -136,6 +144,121 @@ function CodyProvider:parse_context_messages(context)
     return codebase_context
 end
 
+--- Add a user tool result message to the message list
+---@param messages ParsedMessage[] The messages table to append to
+---@param msg CodyMessage The original message from the user
+---@param msg_content CodyToolMessageContent The content portion of the message
+function CodyProvider:add_user_tool_result(messages, msg, msg_content)
+    table.insert(messages, {
+        speaker = self.role_map[msg.role],
+        content = {
+            {
+                type = "tool_result",
+                tool_result = {
+                    id = msg_content.tool_use_id,
+                    content = msg_content.content,
+                },
+            },
+        },
+    })
+end
+
+--- Add an assistant tool call message to the message list
+---@param messages ParsedMessage[] The messages table to append to
+---@param msg CodyMessage The original message from the assistant
+---@param msg_content CodyToolMessageContent The content portion of the message
+function CodyProvider:add_assistant_tool_call(messages, msg, msg_content)
+    table.insert(messages, {
+        speaker = self.role_map[msg.role],
+        content = {
+            { type = "text", text = "call this tool for me" },
+            {
+                type = "tool_call",
+                tool_call = {
+                    id = msg_content.id,
+                    name = msg_content.name,
+                    arguments = vim.json.encode(msg_content.input),
+                },
+            },
+        },
+    })
+end
+
+--- Process and append tool histories to the messages list
+---@param messages ParsedMessage[] The messages table to append to
+---@param tool_histories CodyToolHistory[] List of tool history entries to process
+function CodyProvider:append_tool_histories(messages, tool_histories)
+    for _, tool_history in ipairs(tool_histories) do
+        -- Create and append assistant message with tool call
+        local assistant_message = {
+            speaker = "assistant",
+            content = {
+                { type = "text", text = "call this tool for me" },
+                {
+                    type = "tool_call",
+                    tool_call = {
+                        id = tool_history.tool_use.id,
+                        name = tool_history.tool_use.name,
+                        arguments = tool_history.tool_use.input_json,
+                    },
+                },
+            },
+        }
+
+        -- Create and append human message with tool result
+        local human_message = {
+            speaker = "user",
+            content = {
+                {
+                    type = "tool_result",
+                    tool_result = {
+                        id = tool_history.tool_result.tool_use_id,
+                        content = tool_history.tool_result.content,
+                    },
+                },
+            },
+        }
+
+        -- Add both messages to the conversation
+        table.insert(messages, assistant_message)
+        table.insert(messages, human_message)
+    end
+end
+
+---@class CodyToolMessageContent
+---@field id string The ID of the tool call
+---@field name string The name of the tool
+---@field input table|string The input to the tool
+---@field tool_use_id string ID of the tool use (for tool results)
+---@field content string Content of the tool result
+
+---@class CodyMessage
+---@field role string The role of the message sender (user, assistant, system)
+---@field content string|table Either a string for plain text or a table for tool calls/results
+---
+
+---@class CodyToolHistory
+---@field tool_use table Information about the tool use
+---@field tool_use.id string ID of the tool use
+---@field tool_use.name string Name of the tool
+---@field tool_use.input_json string JSON string of the tool arguments
+---@field tool_result table Information about the tool result
+---@field tool_result.tool_use_id string ID of the associated tool use
+---@field tool_result.content string Content of the tool result
+
+---@class ParseMessagesOpts
+---@field system_prompt string The system prompt text
+---@field messages CodyMessage[] List of messages in the conversation
+---@field tool_histories? CodyToolHistory[] Optional list of tool use histories
+
+---@class ParsedMessage
+---@field speaker string The speaker role mapped to Cody format
+---@field text? string The message text (for plain text messages)
+---@field content? table The content for tool calls or results
+
+--- Parse conversation messages into the format required by Cody API
+---@param opts ParseMessagesOpts Options containing the conversation data
+---@return ParsedMessage[] List of parsed messages in Cody format
 function CodyProvider:parse_messages(opts)
     local messages = {
         { speaker = self.role_map.system, text = opts.system_prompt },
@@ -146,43 +269,29 @@ function CodyProvider:parse_messages(opts)
     end)
 
     vim.iter(opts.messages):each(function(msg)
-        table.insert(messages, { speaker = self.role_map[msg.role], text = msg.content })
+        -- Case 1: Plain text content
+        if type(msg.content) ~= "table" then
+            table.insert(messages, {
+                speaker = self.role_map[msg.role],
+                text = msg.content,
+            })
+            return
+        end
+
+        -- Table-type content (tool calls or results)
+        local msg_content = msg.content[1]
+
+        if msg.role == "user" then
+            -- User tool result
+            self:add_user_tool_result(messages, msg, msg_content)
+        else
+            -- Assistant tool call
+            self:add_assistant_tool_call(messages, msg, msg_content)
+        end
     end)
 
     if opts.tool_histories then
-        for _, tool_history in ipairs(opts.tool_histories) do
-            -- push an assistant message
-            local assistant_message = {
-                speaker = "assistant",
-                content = {
-                    { type = "text", text = "call this tool for me" },
-                    {
-                        type = "tool_call",
-                        tool_call = {
-                            id = tool_history.tool_use.id,
-                            name = tool_history.tool_use.name,
-                            arguments = tool_history.tool_use.input_json,
-                        },
-                    },
-                },
-            }
-
-            local human_message = {
-                speaker = "user",
-                content = {
-                    {
-                        type = "tool_result",
-                        tool_result = {
-                            id = tool_history.tool_result.tool_use_id,
-                            content = tool_history.tool_result.content,
-                        },
-                    },
-                },
-            }
-
-            table.insert(messages, assistant_message)
-            table.insert(messages, human_message)
-        end
+        self:append_tool_histories(messages, opts.tool_histories)
     end
 
     return messages
