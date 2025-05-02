@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.1.2](https://github.com/brewinski/avante-cody.nvim/compare/v1.1.1...v1.1.2) (2025-05-02)
+
+
+### Bug Fixes
+
+* **provider:** resolve compatibility issue with avante plugin interface ([fd64689](https://github.com/brewinski/avante-cody.nvim/commit/fd64689cde2c36f797bb47e40f312790b52f7d9d))
+
 ## [1.1.1](https://github.com/brewinski/avante-cody.nvim/compare/v1.1.0...v1.1.1) (2025-05-01)
 
 
