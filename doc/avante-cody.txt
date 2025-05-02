@@ -172,7 +172,7 @@ Fields ~
 
 ------------------------------------------------------------------------------
                                                  *CodyProvider.parse_response()*
-`CodyProvider.parse_response`({_}, {ctx}, {data_stream}, {event_state}, {opts})
+`CodyProvider.parse_response`({self}, {ctx}, {data_stream}, {event_state}, {opts})
 Parameters ~
 {ctx} `(any)`
 {data_stream} `(string)`

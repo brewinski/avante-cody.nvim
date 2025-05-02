@@ -8,10 +8,82 @@
 
 ## ⚡️ Features
 
-- Seamless integration with [Sourcegraph Cody AI](https://sourcegraph.com/cody) in [avante.nvim](https://github.com/brewinski/avante.nvim)
-- Support for both Sourcegraph Cloud and self-hosted Sourcegraph instances
-<!-- - Secure authentication using multiple methods including 1Password CLI -->
-<!-- - Intelligent context gathering for more accurate code completions and explanations -->
+- Integration with Sourcegraph Cody in [avante.nvim](https://github.com/brewinski/avante.nvim)
+- Support Sourcegraph Cloud Enterprise  
+- Experimental / Limited support for free, pro and enterprise starter accounts
+
+> ⚠️ **Important Rate Limit Warning**: Free, Pro, and Enterprise Starter accounts **will likely hit rate limits** without the recommended configuration below, making the tool unusable until limits reset.
+
+### ⚠️ Recommended Configuration to Avoid Rate Limits
+
+1. **Avante Settings** - Disable high-usage tools:
+```lua
+mode = "legacy"
+disabled_tools = {
+    'insert',
+    'create',
+    'str_replace',
+    'replace_in_file'
+}
+```
+
+2. **Avante-Cody Settings** - Disable additional tools:
+```lua
+
+  {
+    -- cody free accounts:
+    ['cody-free'] = {
+      endpoint = 'https://sourcegraph.com',
+      -- endpoint= 'https://<your_instance>.sourcegraphcloud.com',
+      api_key_name = 'SRC_ACCESS_TOKEN',
+      disable_tools = true
+    },
+    -- cody pro accounts:
+    ['avante-pro'] = {
+      endpoint = 'https://sourcegraph.com',
+      -- endpoint= 'https://<your_instance>.sourcegraphcloud.com',
+      api_key_name = 'SRC_ACCESS_TOKEN',
+      --  rate limits are untested for pro accounts, this might not be required
+      disable_tools = true
+    },
+    -- cody enterprise starter accounts:
+    ['avante-enterprise-starter'] = {
+      endpoint = 'https://sourcegraph.com',
+      -- endpoint= 'https://<your_instance>.sourcegraphcloud.com',
+      api_key_name = 'SRC_ACCESS_TOKEN',
+      --  rate limits are untested for enterprise starter accounts, this might not be required
+      disable_tools = true
+    },
+    -- cody enterprise accounts:
+    ['avante-enterprise'] = {
+      endpoint = 'https://<myworkspace>.sourcegraph.com',
+      -- endpoint= 'https://<your_instance>.sourcegraphcloud.com',
+      api_key_name = 'SRC_ACCESS_TOKEN',
+    },
+  }
+```
+
+3. **LLM Configuration Override** - Prevent unnecessary API calls:
+```lua
+{
+    'brewinski/avante-cody.nvim',
+    -- your other config options...
+    config = function(_, opts)
+        require('avante-cody').setup(opts)
+
+        local llm = require 'avante.llm'
+        llm.summarize_chat_thread_title = function(_, cb)
+            -- prevent API calls for chat titles
+            cb 'untitled'
+        end
+
+        llm.summarize_memory = function(_, _, cb)
+            -- prevent API calls for memory summaries
+            cb(nil)
+        end
+    end
+}
+```
 
 ## 📋 Installation
 
@@ -19,7 +91,7 @@
 
 - [Neovim](https://neovim.io/) (0.8.0 or later)
 - [avante.nvim](https://github.com/brewinski/avante.nvim) (installed and configured)
-- A Sourcegraph account with Cody access
+- A Sourcegraph account with Cody access. Ideally a Sourcegraph Cloud Enterprise account.
 
 <div align="center">
 <table>
@@ -42,6 +114,14 @@
 {
   'yetone/avante.nvim',
   {
+    -- recommended settings here
+    mode = "legacy"
+    disabled_tools = {
+        'insert',
+        'create',
+        'str_replace',
+        'replace_in_file'
+    }
     --  your avnte.nvim configuration
     -- ...
     dependencies = {
@@ -68,21 +148,21 @@
 
 </td>
 <td>
-
-```lua
--- TODO: confirm configuration for packer
-use {
-  "brewinski/avante-cody.nvim",
-  requires = {
-    "brewinski/avante.nvim",
-  },
-  config = function()
-    require("avante-cody").setup({
-      -- your configuration
-    })
-  end
-}
-```
+TODO
+<!-- ```lua -->
+<!-- -- TODO: confirm configuration for packer -->
+<!-- use { -->
+<!--   "brewinski/avante-cody.nvim", -->
+<!--   requires = { -->
+<!--     "brewinski/avante.nvim", -->
+<!--   }, -->
+<!--   config = function() -->
+<!--     require("avante-cody").setup({ -->
+<!--       -- your configuration -->
+<!--     }) -->
+<!--   end -->
+<!-- } -->
+<!-- ``` -->
 
 </td>
 </tr>
@@ -94,18 +174,19 @@ use {
 </td>
 <td>
 
-```vim
-" TODO: confirm configuration for vim-plug 
-Plug 'brewinski/avante.nvim'
-Plug 'brewinski/avante-cody.nvim'
-
-" After plug#end():
-lua << EOF
-  require("avante-cody").setup({
-    -- your configuration
-  })
-EOF
-```
+** TODO **
+<!-- ```vim -->
+<!-- " TODO: confirm configuration for vim-plug  -->
+<!-- Plug 'brewinski/avante.nvim' -->
+<!-- Plug 'brewinski/avante-cody.nvim' -->
+<!---->
+<!-- " After plug#end(): -->
+<!-- lua << EOF -->
+<!--   require("avante-cody").setup({ -->
+<!--     -- your configuration -->
+<!--   }) -->
+<!-- EOF -->
+<!-- ``` -->
 
 </td>
 </tr>
@@ -195,13 +276,6 @@ cody = {
 }
 ```
 
-<!-- ## 🧰 Commands -->
-<!---->
-<!-- | Command | Description | -->
-<!-- |---------|-------------| -->
-<!-- | `:AvanteSelectProvider cody` | Select Cody as the active AI provider | -->
-<!-- | `:AvanteCodyToggle` | Toggle the Cody provider on/off | -->
-
 ## 🤝 Using with avante.nvim
 
 Once configured, you can use all avante.nvim features with the Sourcegraph Cody provider:
@@ -210,12 +284,6 @@ Once configured, you can use all avante.nvim features with the Sourcegraph Cody 
 ## ⌨ Contributing
 
 PRs and issues are always welcome. Make sure to provide as much context as possible when opening one.
-
-## 🎭 Why Sourcegraph Cody?
-
-- **Code Intelligence**: Cody is specifically designed for code understanding and generation
-- **Self-hosting**: Support for self-hosted Sourcegraph instances allows for enhanced privacy
-- **Integration**: Works seamlessly with existing Sourcegraph setups
 
 ## 📄 License
 
