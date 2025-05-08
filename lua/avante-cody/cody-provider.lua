@@ -27,7 +27,7 @@ local CodyProvider = {}
 ---@field role_map? table
 
 ---@class avante_cody.AvanteProviderFunctor
----@field disable_tools integer
+---@field disable_tools boolean
 ---@field endpoint string
 ---@field api_key_name string
 ---@field max_tokens integer
@@ -45,7 +45,7 @@ local CodyProvider = {}
 
 local default_opts = {
     use_xml_format = true,
-    disable_tools = false,
+    disable_tools = true,
     endpoint = "https://sourcegraph.com",
     api_key_name = "SRC_ACCESS_TOKEN",
     max_tokens = 30000,
@@ -447,6 +447,8 @@ function CodyProvider.parse_response(self, ctx, data_stream, event_state, opts)
     local tool_use = json.delta_tool_calls
     local stopReason = json.stopReason
     local usage = json.usage
+
+    print(vim.inspect(json))
 
     if delta ~= nil and delta ~= "" then
         if opts.on_chunk then

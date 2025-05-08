@@ -65,4 +65,15 @@ T["setup()"]["overrides default values"] = function()
     Helpers.expect.config_type(child, "debug", "boolean")
 end
 
+T["setup()"]["defaults to a the free subscription to protect accounts from exceeding sourcegraph rate limits"] = function()
+    child.lua([[require('avante-cody').setup({
+        -- write all the options with a value different than the default ones
+        debug = true,
+    })]])
+
+    -- assert the value, and the type
+    Helpers.expect.config(child, "sourgraph_subscription", "free")
+    Helpers.expect.config_type(child, "sourgraph_subscription", "string")
+end
+
 return T
