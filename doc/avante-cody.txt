@@ -32,7 +32,7 @@ Fields ~
 Class ~
 {avante_cody.AvanteProviderFunctor}
 Fields ~
-{disable_tools} `(integer)`
+{disable_tools} `(boolean)`
 {endpoint} `(string)`
 {api_key_name} `(string)`
 {max_tokens} `(integer)`
@@ -221,24 +221,40 @@ Class ~
 {insecure} `(boolean)`
 
 ------------------------------------------------------------------------------
-                                                *CodyProvider.parse_curl_args()*
-            `CodyProvider.parse_curl_args`({provider}, {code_opts})
+                                                *CodyProvider:parse_curl_args()*
+            `CodyProvider:parse_curl_args`({provider}, {code_opts})
 @return avante_cody.CodyProviderCurlArgs
 
 
 ==============================================================================
 ------------------------------------------------------------------------------
+@class avante_cody.ConfigOverrides
+@field avante_llm_summarize_chat_thread boolean
+@field avante_llm_summarize_chat_thread_fn function
+@field avante_llm_summarize_memory boolean
+@field avante_llm_summarize_memory_fn function
+
+------------------------------------------------------------------------------
                                                             *AvanteCody.options*
                               `AvanteCody.options`
-AvanteCody configuration with its default values.
-
-Type ~
-`(table)`
+Class ~
+{avante_cody.Config}
+Fields ~
+{debug} `(boolean)` Debug mode
+{override} `(avante_cody.ConfigOverrides)`
 Default values:
 >lua
   AvanteCody.options = {
       -- Prints useful logs about what event are triggered, and reasons actions are executed.
       debug = false,
+      providers = {},
+      override = {
+          avante_llm_summarize_chat_thread = true,
+          avante_llm_summarize_chat_thread_fn = overrides.summarize_chat_thread_fn,
+          avante_llm_summarize_memory = true,
+          avante_llm_summarize_memory_fn = overrides.summarize_memory_fn,
+      },
+      logfile = "",
   }
 
 <
@@ -248,10 +264,32 @@ Default values:
 Define your avante-cody setup.
 
 Parameters ~
-{options} `(table)` Module config table. See |AvanteCody.options|.
+{options} `(avante_cody.Config)` Module config table. See |AvanteCody.options|.
 
 Usage ~
 `require("avante-cody").setup()` (add `{}` with your |AvanteCody.options| table)
+
+
+==============================================================================
+------------------------------------------------------------------------------
+                                        *main.configure_ratelimit_protections()*
+                `main.configure_ratelimit_protections`({config})
+@param config avante_cody.Config
+
+
+==============================================================================
+------------------------------------------------------------------------------
+                                          *overrides.summarize_chat_thread_fn()*
+                 `overrides.summarize_chat_thread_fn`({config})
+Override the summarize_chat_thread_title function to reduce api ratelimit requests
+Parameters ~
+{config} `(avante_cody.Config)`
+
+------------------------------------------------------------------------------
+                                               *overrides.summarize_memory_fn()*
+                   `overrides.summarize_memory_fn`({config})
+Parameters ~
+{config} `(avante_cody.Config)`
 
 
 ==============================================================================

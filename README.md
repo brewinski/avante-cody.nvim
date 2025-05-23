@@ -14,6 +14,8 @@
 
 > ⚠️ **Important Rate Limit Warning**: Free, Pro, and Enterprise Starter accounts **will likely hit rate limits** without the recommended configuration below, making the tool unusable until limits reset.
 
+> ⚡ **Account Ban Warning**: Using Cody Free or Pro accounts outside of Sourcegraph's official IDE may result in your account being flagged for spam and potentially banned. This is due to Sourcegraph's Acceptable Use Policy. Enterprise accounts are not affected by this limitation however there are no garantees. If you're using a Free or Pro account, please be aware of this risk.
+
 ### ⚠️ Recommended Configuration to Avoid Rate Limits
 
 1. **Avante Settings** - Disable high-usage tools:

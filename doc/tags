@@ -1,12 +1,15 @@
 AvanteCody.options	avante-cody.txt	/*AvanteCody.options*
 AvanteCody.setup()	avante-cody.txt	/*AvanteCody.setup()*
 CodyProvider	avante-cody.txt	/*CodyProvider*
-CodyProvider.parse_curl_args()	avante-cody.txt	/*CodyProvider.parse_curl_args()*
 CodyProvider.parse_response()	avante-cody.txt	/*CodyProvider.parse_response()*
 CodyProvider:add_assistant_tool_call()	avante-cody.txt	/*CodyProvider:add_assistant_tool_call()*
 CodyProvider:add_user_tool_result()	avante-cody.txt	/*CodyProvider:add_user_tool_result()*
 CodyProvider:append_tool_histories()	avante-cody.txt	/*CodyProvider:append_tool_histories()*
 CodyProvider:new()	avante-cody.txt	/*CodyProvider:new()*
 CodyProvider:parse_context_messages()	avante-cody.txt	/*CodyProvider:parse_context_messages()*
+CodyProvider:parse_curl_args()	avante-cody.txt	/*CodyProvider:parse_curl_args()*
 CodyProvider:parse_messages()	avante-cody.txt	/*CodyProvider:parse_messages()*
 FileWriter	avante-cody.txt	/*FileWriter*
+main.configure_ratelimit_protections()	avante-cody.txt	/*main.configure_ratelimit_protections()*
+overrides.summarize_chat_thread_fn()	avante-cody.txt	/*overrides.summarize_chat_thread_fn()*
+overrides.summarize_memory_fn()	avante-cody.txt	/*overrides.summarize_memory_fn()*

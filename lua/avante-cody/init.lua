@@ -11,6 +11,8 @@ function AvanteCody.setup(opts)
         return
     end
 
+    main.configure_ratelimit_protections(_G.AvanteCody.config)
+
     local providers = opts.providers or {}
     for provider_name, provider_opts in pairs(providers) do
         main.register_provider(provider_name, provider_opts)
