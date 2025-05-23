@@ -80,6 +80,16 @@ function CodyProvider:new(opts)
     -- Create the provider instance with metatable for inheritance
     local cody_provider = setmetatable(instance_opts, { __index = self })
 
+    cody_provider.parse_curl_args = function(provider, opts)
+        if getmetatable(self) ~= CodyProvider then
+            setmetatable(instance_opts, { __index = CodyProvider })
+        end
+        if getmetatable(provider) ~= CodyProvider then
+            setmetatable(provider, { __index = CodyProvider })
+        end
+        return self.parse_curl_args(self, provider, opts)
+    end
+
     -- Initialize the context for this instance
     cody_provider.cody_context = {}
 
@@ -448,8 +458,6 @@ function CodyProvider.parse_response(self, ctx, data_stream, event_state, opts)
     local stopReason = json.stopReason
     local usage = json.usage
 
-    print(vim.inspect(json))
-
     if delta ~= nil and delta ~= "" then
         if opts.on_chunk then
             opts.on_chunk(delta)
@@ -576,7 +584,7 @@ end
 ---@field insecure boolean
 
 --- @return avante_cody.CodyProviderCurlArgs
-function CodyProvider.parse_curl_args(provider, code_opts)
+function CodyProvider:parse_curl_args(provider, code_opts)
     log.debug(LOG_SCOPE, "parse_curl_args: args: %s", vim.inspect(code_opts, { newline = "" }))
     local base, body_opts = provider:parse_config(provider)
 
