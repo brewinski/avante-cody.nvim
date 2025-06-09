@@ -8,6 +8,8 @@ if #vim.api.nvim_list_uis() == 0 then
     vim.cmd("set rtp+=deps/mini.nvim")
     -- add avante to the runtimepath to be able to test config.
     vim.cmd("set rtp+=deps/avante.nvim")
+    -- add plenary to the runtime path to test config
+    vim.cmd("set rtp+=deps/plenary.nvim")
 
     -- Set up 'mini.test'
     require("mini.test").setup()

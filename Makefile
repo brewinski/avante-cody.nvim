@@ -25,6 +25,8 @@ deps:
 	@mkdir -p deps
 	git clone --depth 1 https://github.com/echasnovski/mini.nvim deps/mini.nvim
 	git clone --depth 1 https://github.com/yetone/avante.nvim deps/avante.nvim
+	git clone --depth 1 https://github.com/nvim-lua/plenary.nvim deps/plenary.nvim
+
 
 # installs deps before running tests, useful for the CI.
 test-ci: deps test

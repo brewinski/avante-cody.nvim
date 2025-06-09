@@ -45,7 +45,7 @@ local CodyProvider = {}
 
 local default_opts = {
     use_xml_format = true,
-    disable_tools = true,
+    disable_tools = false,
     endpoint = "https://sourcegraph.com",
     api_key_name = "SRC_ACCESS_TOKEN",
     max_tokens = 30000,

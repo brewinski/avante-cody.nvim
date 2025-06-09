@@ -55,7 +55,7 @@ local parse_curl_args_script = function(api_key, input)
     return string.format(
         [[
         local avante_config = require('avante.config')
-        local provider = avante_config._defaults.vendors["avante-cody"]
+        local provider = avante_config._defaults.providers["avante-cody"]
 
         provider.parse_api_key = function() return "%s" end
 
@@ -298,7 +298,7 @@ local parse_response_script = function(ctx, data_stream, event_state)
     return string.format(
         [[
         local avante_config = require('avante.config')
-        local provider = avante_config._defaults.vendors["avante-cody"]
+        local provider = avante_config._defaults.providers["avante-cody"]
 
         local on_stop_result = {}
         local on_chunk_result = {}

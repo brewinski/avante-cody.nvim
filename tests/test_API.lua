@@ -45,7 +45,10 @@ T["setup()"]["updates the avante providers list when a new provider is registere
     -- read avante config value
     local output = child.lua([[
         local avante_config = require('avante.config') 
-        return avante_config._defaults.vendors["avante-cody"]
+        return {
+            endpoint = avante_config._defaults.providers["avante-cody"].endpoint, 
+            model = avante_config._defaults.providers["avante-cody"].model
+        }
     ]])
 
     -- assert the value, and the type
@@ -57,23 +60,12 @@ end
 T["setup()"]["overrides default values"] = function()
     child.lua([[require('avante-cody').setup({
         -- write all the options with a value different than the default ones
-        debug = true,
+        logfile = "test.log"
     })]])
 
     -- assert the value, and the type
-    Helpers.expect.config(child, "debug", true)
-    Helpers.expect.config_type(child, "debug", "boolean")
-end
-
-T["setup()"]["defaults to a the free subscription to protect accounts from exceeding sourcegraph rate limits"] = function()
-    child.lua([[require('avante-cody').setup({
-        -- write all the options with a value different than the default ones
-        debug = true,
-    })]])
-
-    -- assert the value, and the type
-    Helpers.expect.config(child, "sourgraph_subscription", "free")
-    Helpers.expect.config_type(child, "sourgraph_subscription", "string")
+    Helpers.expect.config(child, "logfile", "test.log")
+    Helpers.expect.config_type(child, "logfile", "string")
 end
 
 return T

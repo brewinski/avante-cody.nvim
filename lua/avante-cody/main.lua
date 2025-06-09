@@ -13,7 +13,7 @@ function main.register_provider(provider_name, provider_opts)
     local cody_provider = provider_facotry:new(provider_opts)
 
     local config = require("avante.config")
-    config._defaults.vendors[provider_name] = cody_provider
+    config._defaults.providers[provider_name] = cody_provider
 end
 
 --- @param config avante_cody.Config
