@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.1.3](https://github.com/brewinski/avante-cody.nvim/compare/v1.1.2...v1.1.3) (2025-06-09)
+
+
+### Bug Fixes
+
+* **support:** support latest config/provider refactors start-commit: e9ab2ca2fd7b8df4bed0963f490f59d8ed119ecb end-commit:0cce9558169d20daaee6894ee9ff90932314d777 ([eceb64c](https://github.com/brewinski/avante-cody.nvim/commit/eceb64cfd1e931a733728b61b6cb91b2c619810a)), closes [#11](https://github.com/brewinski/avante-cody.nvim/issues/11)
+
 ## [1.1.2](https://github.com/brewinski/avante-cody.nvim/compare/v1.1.1...v1.1.2) (2025-05-02)
 
 
