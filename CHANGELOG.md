@@ -1,5 +1,25 @@
 # Changelog
 
+## [1.3.0](https://github.com/brewinski/avante-cody.nvim/compare/v1.2.1...v1.3.0) (2025-06-10)
+
+
+### Features
+
+* **agentic-mode:** add support for agentic mode and write_to_file tools ([43b70af](https://github.com/brewinski/avante-cody.nvim/commit/43b70af961a67f64a8d93cd2f3061a2b24e2a7b4))
+* **cody-provider:** improve tool use functionality and type definitions ([3d93e65](https://github.com/brewinski/avante-cody.nvim/commit/3d93e657259735823db7d2f7339a5e23b3227389))
+* **thinking:** add thinking support to sourcegraph cody provider. ([aa0c206](https://github.com/brewinski/avante-cody.nvim/commit/aa0c20602e963c7a8db2a7420989a3083bd90f92))
+
+
+### Bug Fixes
+
+* **cody-provider:** add missing error reason in parse_response ([465f1f7](https://github.com/brewinski/avante-cody.nvim/commit/465f1f76b07858925e98782bb79204767b7967a7))
+* **cody-provider:** correct API request formatting and type annotations ([7a1277b](https://github.com/brewinski/avante-cody.nvim/commit/7a1277be018a09d944dcbd171f1653192e796a76))
+* **provider:** properly handle tool call and tool result messages ([04de9cc](https://github.com/brewinski/avante-cody.nvim/commit/04de9cc946a606f901dd856e81081bf7abf5ac2c))
+* **provider:** remove empty test file. ([92dfca6](https://github.com/brewinski/avante-cody.nvim/commit/92dfca6666ac1712af1713f3df61e672e38ca6c3))
+* **provider:** resolve compatibility issue with avante plugin interface ([fd64689](https://github.com/brewinski/avante-cody.nvim/commit/fd64689cde2c36f797bb47e40f312790b52f7d9d))
+* **support:** support latest config/provider refactors start-commit: e9ab2ca2fd7b8df4bed0963f490f59d8ed119ecb end-commit:0cce9558169d20daaee6894ee9ff90932314d777 ([eceb64c](https://github.com/brewinski/avante-cody.nvim/commit/eceb64cfd1e931a733728b61b6cb91b2c619810a)), closes [#11](https://github.com/brewinski/avante-cody.nvim/issues/11)
+* **thinking:** calling tools with thinking enabled resulted in an error message. Work around introduced for thinking models to avoid interlated thinking requirement. ([2437b13](https://github.com/brewinski/avante-cody.nvim/commit/2437b13baf0980a86b353d6d6abb6401818adaa2))
+
 ## [1.2.1](https://github.com/brewinski/avante-cody.nvim/compare/v1.2.0...v1.2.1) (2025-06-10)
 
 
