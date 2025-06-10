@@ -113,34 +113,31 @@ disabled_tools = {
 <td>
 
 ```lua
--- reffer to the official avante configuration for reccomended config.: https://github.com/yetone/avante.nvim?tab=readme-ov-file#installation
+-- Add to your existing avante.nvim configuration
+-- See https://github.com/yetone/avante.nvim#installation for full avante setup
 {
   'yetone/avante.nvim',
-  ... -- your avante config: https://github.com/yetone/avante.nvim?tab=readme-ov-file#installation
-  {
-    opts = {
-      ... -- your avante config: https://github.com/yetone/avante.nvim?tab=readme-ov-file#installation
-      -- recommended settings here
-      mode = "legacy"
-      disabled_tools = {
-          'insert',
-          'create',
-          'str_replace',
-          'replace_in_file'
-      }
+  opts = {
+    -- Recommended settings to avoid rate limits
+    mode = "legacy",
+    disabled_tools = {
+      'insert',
+      'create', 
+      'str_replace',
+      'replace_in_file'
     }
-    ... -- your avante config: https://github.com/yetone/avante.nvim?tab=readme-ov-file#installation
-    dependencies = {
-      'brewinski/avante-cody.nvim',
-      opts = {
-        providers = {
-          ['avante-cody'] = {
-            endpoint = 'https://sourcegraph.com',
-            -- endpoint= 'https://<your_instance>.sourcegraphcloud.com',
-            api_key_name = 'SRC_ACCESS_TOKEN',
-          },
+  },
+  dependencies = {
+    -- Add avante-cody.nvim as a dependency
+    'brewinski/avante-cody.nvim',
+    opts = {
+      providers = {
+        ['avante-cody'] = {
+          endpoint = 'https://sourcegraph.com',
+          api_key_name = 'SRC_ACCESS_TOKEN',
         },
       },
+    },
   }
 }
 ```
