@@ -113,11 +113,13 @@ disabled_tools = {
 <td>
 
 ```lua
+-- reffer to the official avante configuration for reccomended config.: https://github.com/yetone/avante.nvim?tab=readme-ov-file#installation
 {
   'yetone/avante.nvim',
+  ... -- your avante config: https://github.com/yetone/avante.nvim?tab=readme-ov-file#installation
   {
     opts = {
-      ...
+      ... -- your avante config: https://github.com/yetone/avante.nvim?tab=readme-ov-file#installation
       -- recommended settings here
       mode = "legacy"
       disabled_tools = {
@@ -126,9 +128,8 @@ disabled_tools = {
           'str_replace',
           'replace_in_file'
       }
-      --  your avnte.nvim configuration
     }
-    -- ...
+    ... -- your avante config: https://github.com/yetone/avante.nvim?tab=readme-ov-file#installation
     dependencies = {
       'brewinski/avante-cody.nvim',
       opts = {
