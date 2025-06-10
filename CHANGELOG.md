@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.2.0](https://github.com/brewinski/avante-cody.nvim/compare/v1.1.3...v1.2.0) (2025-06-10)
+
+
+### Features
+
+* **thinking:** add thinking support to sourcegraph cody provider. ([aa0c206](https://github.com/brewinski/avante-cody.nvim/commit/aa0c20602e963c7a8db2a7420989a3083bd90f92))
+
 ## [1.1.3](https://github.com/brewinski/avante-cody.nvim/compare/v1.1.2...v1.1.3) (2025-06-09)
 
 
