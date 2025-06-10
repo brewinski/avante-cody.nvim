@@ -116,15 +116,18 @@ disabled_tools = {
 {
   'yetone/avante.nvim',
   {
-    -- recommended settings here
-    mode = "legacy"
-    disabled_tools = {
-        'insert',
-        'create',
-        'str_replace',
-        'replace_in_file'
+    opts = {
+      ...
+      -- recommended settings here
+      mode = "legacy"
+      disabled_tools = {
+          'insert',
+          'create',
+          'str_replace',
+          'replace_in_file'
+      }
+      --  your avnte.nvim configuration
     }
-    --  your avnte.nvim configuration
     -- ...
     dependencies = {
       'brewinski/avante-cody.nvim',
