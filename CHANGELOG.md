@@ -7,13 +7,6 @@
 
 * **thinking:** calling tools with thinking enabled resulted in an error message. Work around introduced for thinking models to avoid interlated thinking requirement. ([2437b13](https://github.com/brewinski/avante-cody.nvim/commit/2437b13baf0980a86b353d6d6abb6401818adaa2))
 
-## [1.2.1](https://github.com/brewinski/avante-cody.nvim/compare/v1.2.0...v1.2.1) (2025-06-10)
-
-
-### Bug Fixes
-
-* **thinking:** calling tools with thinking enabled resulted in an error message. Work around introduced for thinking models to avoid interlated thinking requirement. ([2437b13](https://github.com/brewinski/avante-cody.nvim/commit/2437b13baf0980a86b353d6d6abb6401818adaa2))
-
 ## [1.2.0](https://github.com/brewinski/avante-cody.nvim/compare/v1.1.3...v1.2.0) (2025-06-10)
 
 
