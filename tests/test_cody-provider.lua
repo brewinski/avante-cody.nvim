@@ -294,42 +294,60 @@ T["cody-provider:parse_curl_args()"]["system prompt is appended as the leading m
     })
 end
 
-local parse_response_script = function(ctx, data_stream, event_state)
-    return string.format(
-        [[
-        local avante_config = require('avante.config')
-        local provider = avante_config._defaults.providers["avante-cody"]
+T["cody-provider:parse_curl_args()"]["correctly parses assistant tool calls and user tool results from message content"] = function()
+    T["cody-provider:parse_curl_args()"]["thinking messages are excluded from the final output"] = function()
+        --- @type avante_cody.AvanteProviderOpts
+        local config = {}
 
-        local on_stop_result = {}
-        local on_chunk_result = {}
-
-        local opts = {
-            on_stop = function(opts) 
-                on_stop_result = opts
-            end,
-
-            on_chunk = function(opts) 
-               on_chunk_result = opts
-            end
+        local input = {
+            system_prompt = "this is a system prompt",
+            messages = {
+                {
+                    msg = {
+                        content = "<task>if a tree falls in the forest, does it make a sound?</task>",
+                        role = "user",
+                    },
+                },
+                -- Thinking message
+                {
+                    role = "assistant",
+                    content = {
+                        {
+                            type = "thinking",
+                            thinking = "This is a classic philosophical question about perception and reality.",
+                            signature = "",
+                        },
+                    },
+                },
+                -- Normal assistant response
+                { role = "assistant", content = "I found 3 files in the directory." },
+            },
         }
 
-        provider.parse_response(
-            provider,
-            %s,
-            '%s',
-            "%s",
-            opts
+        child.lua(setup_plugin_script(config))
+
+        -- read avante config value
+        ---@type avante_cody.CodyProviderCurlArgs
+        local result = child.lua(parse_curl_args_script(test_api_key, input))
+
+        -- check system prompt
+        local system_prompt = result.body.messages[1]
+        eq(system_prompt, { speaker = "system", text = "this is a system prompt" })
+
+        -- check user message
+        local user_message = result.body.messages[2]
+        eq(
+            user_message,
+            { speaker = "human", text = "if a tree falls in the forest, does it make a sound?" }
         )
 
-        return on_stop_result, on_chunk_result
-    ]],
-        vim.inspect(ctx, { newline = "" }),
-        data_stream,
-        event_state
-    )
-end
+        -- check normal assistant response
+        local msg1 = result.body.messages[3]
+        eq(msg1, { speaker = "assistant", text = "I found 3 files in the directory." })
 
-T["cody-provider:parse_curl_args()"]["correctly parses assistant tool calls and user tool results from message content"] = function()
+        -- ensure thinking message is excluded
+        eq(#result.body.messages, 2)
+    end
     --- @type avante_cody.AvanteProviderOpts
     local config = {}
 
@@ -450,21 +468,103 @@ T["cody-provider:parse_curl_args()"]["correctly parses assistant tool calls and 
     )
 end
 
+local parse_response_script = function(ctx, data_stream, event_state)
+    return string.format(
+        [[
+        local avante_config = require('avante.config')
+        local provider = avante_config._defaults.providers["avante-cody"]
+
+        local result = {}
+
+        local opts = {
+            on_stop = function(s_opts) 
+                table.insert(result, { on_stop = s_opts })
+            end,
+
+            on_chunk = function(c_opts) 
+                table.insert(result, { on_chunk = c_opts })
+            end,
+
+            on_messages_add = function(msg) 
+                table.insert(result, { on_messages_add = msg })
+            end
+        }
+
+        provider.parse_response(
+            provider,
+            %s,
+            '%s',
+            "%s",
+            opts
+        )
+
+        return result
+    ]],
+        vim.inspect(ctx, { newline = "" }),
+        data_stream,
+        event_state
+    )
+end
+
 T["cody-provider:parse_response()"] = new_set()
 
 T["cody-provider:parse_response()"]["reports API error message in call to on_stop"] = function()
     local config = {}
     child.lua(setup_plugin_script(config))
 
-    -- read avante config value
-    ---@type avante_cody.AvanteOnStopOpts, string
-    local on_stop_call, on_chunk_call =
-        child.lua(parse_response_script({}, '{ error = "API error" }', "error"))
+    local result = child.lua(parse_response_script({}, '{ error = "API error" }', "error"))
 
-    eq(on_stop_call.error, 'error: { error = "API error" }')
-    eq(on_stop_call.reason, "error")
+    -- Verify that on_stop is called with the API error
+    eq(result[1], {
+        on_stop = {
+            error = 'error: { error = "API error" }',
+            reason = "error",
+        },
+    })
+end
 
-    eq(on_chunk_call, nil)
+T["cody-provider:parse_response()"]["handles delta_thinking messages correctly"] = function()
+    local config = {}
+    child.lua(setup_plugin_script(config))
+
+    local ctx = {}
+    local data_stream =
+        '{ "delta_thinking": "This is a philosophical question about perception and reality." }'
+    local event_state = "completion"
+
+    -- Call parse_response with delta_thinking data
+    local result = child.lua(parse_response_script(ctx, data_stream, event_state))
+
+    -- Verify that on_chunk is called with the delta_thinking content
+    eq(result[1], { on_chunk = "This is a philosophical question about perception and reality." })
+
+    -- Verify that on_messages_add is called with the delta_thinking content
+    local message_add = result[2]
+    local expected_message = {
+        is_user_submission = false,
+        message = {
+            content = {
+                {
+                    signature = "",
+                    thinking = "This is a philosophical question about perception and reality.",
+                    type = "thinking",
+                },
+            },
+            role = "assistant",
+        },
+        state = "generating",
+        uuid = "cb9c1a5b-6910-4fb2-b457-a9c72a392d90",
+        visible = true,
+    }
+
+    -- Exclude timestamp from comparison
+    message_add.on_messages_add[1].timestamp = nil
+    expected_message.timestamp = nil
+
+    eq(message_add.on_messages_add[1], expected_message)
+
+    -- Verify that the thinking message is added to the context
+    -- eq(ctx.reasonging_content, "This is a philosophical question about perception and reality.")
 end
 
 return T

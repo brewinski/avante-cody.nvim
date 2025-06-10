@@ -292,6 +292,13 @@ function CodyProvider:parse_messages(opts)
         -- Table-type content (tool calls or results)
         local msg_content = msg.content[1]
 
+        --- Case 2: Thinking message
+        if msg_content.type == "thinking" then
+            -- skip thinking messages
+            -- TODO: option to include it using config.
+            return
+        end
+
         if msg.role == "user" then
             -- User tool result
             self:add_user_tool_result(messages, msg, msg_content)
@@ -386,6 +393,31 @@ function CodyProvider:add_text_message(ctx, text, state, opts)
     end
 end
 
+function CodyProvider:add_thinking_message(ctx, text, state, opts)
+    if ctx.reasonging_content == nil then
+        ctx.reasonging_content = ""
+    end
+
+    ctx.reasonging_content = ctx.reasonging_content .. text
+    local msg = HistoryMessage:new({
+        role = "assistant",
+        content = {
+            {
+                type = "thinking",
+                thinking = ctx.reasonging_content,
+                signature = "",
+            },
+        },
+    }, {
+        state = state,
+        uuid = ctx.reasonging_content_uuid,
+    })
+    ctx.reasonging_content_uuid = msg.uuid
+    if opts.on_messages_add then
+        opts.on_messages_add({ msg })
+    end
+end
+
 function CodyProvider:finish_pending_messages(ctx, opts)
     if ctx.content ~= nil and ctx.content ~= "" then
         self:add_text_message(ctx, "", "generated", opts)
@@ -454,9 +486,17 @@ function CodyProvider.parse_response(self, ctx, data_stream, event_state, opts)
 
     local json = vim.json.decode(data_stream)
     local delta = json.deltaText
+    local delta_thinking = json.delta_thinking
     local tool_use = json.delta_tool_calls
     local stopReason = json.stopReason
     local usage = json.usage
+
+    if delta_thinking ~= nil and delta_thinking ~= "" then
+        if opts.on_chunk then
+            opts.on_chunk(delta_thinking)
+        end
+        self:add_thinking_message(ctx, delta_thinking, "generating", opts)
+    end
 
     if delta ~= nil and delta ~= "" then
         if opts.on_chunk then
