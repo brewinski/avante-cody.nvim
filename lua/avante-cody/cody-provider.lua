@@ -1,5 +1,6 @@
 local log = require("avante-cody.util.log")
 local HistoryMessage = require("avante.history_message")
+local JsonParser = require("avante.libs.jsonparser")
 
 local LOG_SCOPE = "cody-provider"
 
@@ -370,10 +371,7 @@ function CodyProvider:parse_response_without_stream(data, state, opts)
 end
 
 function CodyProvider:add_tool_use_message(tool_use, state, opts)
-    local jsn = nil
-    if state == "generated" then
-        jsn = vim.json.decode(tool_use.input_json)
-    end
+    local jsn = JsonParser.parse(tool_use.input_json)
     local msg = HistoryMessage:new({
         role = "assistant",
         content = {
@@ -392,6 +390,9 @@ function CodyProvider:add_tool_use_message(tool_use, state, opts)
     tool_use.state = state
     if opts.on_messages_add then
         opts.on_messages_add({ msg })
+    end
+    if state == "generating" then
+        opts.on_stop({ reason = "tool_use", streaming_tool_use = true })
     end
 end
 
