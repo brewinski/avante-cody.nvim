@@ -75,12 +75,13 @@ Return ~
 
 ------------------------------------------------------------------------------
                                            *CodyProvider:add_user_tool_result()*
-     `CodyProvider:add_user_tool_result`({messages}, {msg}, {msg_content})
+ `CodyProvider:add_user_tool_result`({messages}, {msg}, {msg_content}, {opts})
 Add a user tool result message to the message list
 Parameters ~
 {messages} `(ParsedMessage[])` The messages table to append to
 {msg} `(CodyMessage)` The original message from the user
 {msg_content} `(CodyToolMessageContent)` The content portion of the message
+{opts} `(optional)` `({ is_thinking_model?: boolean })`
 
 ------------------------------------------------------------------------------
                                         *CodyProvider:add_assistant_tool_call()*

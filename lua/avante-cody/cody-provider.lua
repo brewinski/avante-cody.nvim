@@ -159,8 +159,11 @@ end
 ---@param messages ParsedMessage[] The messages table to append to
 ---@param msg CodyMessage The original message from the user
 ---@param msg_content CodyToolMessageContent The content portion of the message
-function CodyProvider:add_user_tool_result(messages, msg, msg_content)
-    table.insert(messages, {
+---@param opts? { is_thinking_model?: boolean }
+function CodyProvider:add_user_tool_result(messages, msg, msg_content, opts)
+    opts = opts or { is_thinking_model = false }
+
+    local tool_result_message = {
         speaker = self.role_map[msg.role],
         content = {
             {
@@ -171,7 +174,18 @@ function CodyProvider:add_user_tool_result(messages, msg, msg_content)
                 },
             },
         },
-    })
+    }
+
+    -- BUGFIX: add a message after tool result for thinkng models to avoid anthropic reqirement to add thinking messages.
+    -- Sourcegraph API doesn't support thinking messages, (AFAIK)
+    if opts.is_thinking_model then
+        table.insert(
+            tool_result_message.content,
+            { type = "text", text = "Ok. This is the result of the tool." }
+        )
+    end
+
+    table.insert(messages, tool_result_message)
 end
 
 --- Add an assistant tool call message to the message list
@@ -271,6 +285,10 @@ end
 ---@param opts ParseMessagesOpts Options containing the conversation data
 ---@return ParsedMessage[] List of parsed messages in Cody format
 function CodyProvider:parse_messages(opts)
+    local tool_metadata = {
+        is_thinking_model = false,
+    }
+
     local messages = {
         { speaker = self.role_map.system, text = opts.system_prompt },
     }
@@ -294,17 +312,19 @@ function CodyProvider:parse_messages(opts)
 
         --- Case 2: Thinking message
         if msg_content.type == "thinking" then
+            tool_metadata.is_thinking_model = true
             -- skip thinking messages
-            -- TODO: option to include it using config.
             return
         end
 
-        if msg.role == "user" then
-            -- User tool result
-            self:add_user_tool_result(messages, msg, msg_content)
-        else
-            -- Assistant tool call
+        -- Case 3: Tool call
+        if msg_content.type == "tool_use" then
             self:add_assistant_tool_call(messages, msg, msg_content)
+        end
+
+        -- Case 4: Tool result
+        if msg_content.type == "tool_result" then
+            self:add_user_tool_result(messages, msg, msg_content, tool_metadata)
         end
     end)
 
