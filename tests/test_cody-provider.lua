@@ -367,6 +367,7 @@ T["cody-provider:parse_curl_args()"]["correctly parses assistant tool calls and 
                             rel_path = ".",
                             max_depth = 1,
                         },
+                        type = "tool_use",
                     },
                 },
             },
@@ -377,6 +378,7 @@ T["cody-provider:parse_curl_args()"]["correctly parses assistant tool calls and 
                     {
                         tool_use_id = "tool_call_123456",
                         content = '["file1.txt", "file2.lua", "README.md"]',
+                        type = "tool_result",
                     },
                 },
             },
@@ -393,6 +395,7 @@ T["cody-provider:parse_curl_args()"]["correctly parses assistant tool calls and 
                             query = "function",
                             rel_path = "src",
                         },
+                        type = "tool_use",
                     },
                 },
             },
@@ -403,6 +406,7 @@ T["cody-provider:parse_curl_args()"]["correctly parses assistant tool calls and 
                     {
                         tool_use_id = "tool_call_abcdef",
                         content = "src/main.lua:10:function setup()\nsrc/utils.lua:5:function helper()",
+                        type = "tool_result",
                     },
                 },
             },
