@@ -54,7 +54,7 @@ T["setup()"]["updates the avante providers list when a new provider is registere
     -- assert the value, and the type
     Helpers.expect.equality(type(output), "table")
     Helpers.expect.equality(output.endpoint, "https://sourcegraph.com")
-    Helpers.expect.equality(output.model, "anthropic::2024-10-22::claude-3-7-sonnet-latest")
+    Helpers.expect.equality(output.model, "anthropic::2024-10-22::claude-sonnet-4-latest")
 end
 
 T["setup()"]["overrides default values"] = function()

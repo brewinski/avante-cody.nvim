@@ -92,7 +92,7 @@ T["cody-provider:parse_curl_args()"]["configuration is added to the curl request
         stream = false,
         topK = -2,
         topP = -2,
-        model = "anthropic::2024-10-22::claude-3-7-sonnet-latest-random",
+        model = "anthropic::2024-10-22::claude-sonnet-4-latest-random",
         timeout = 5000,
         allow_insecure = true,
         temperature = 0.5,
