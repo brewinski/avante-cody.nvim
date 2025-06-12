@@ -212,7 +212,7 @@ require("avante-cody").setup({
       endpoint = "https://sourcegraph.com",
       api_key_name = "SRC_ACCESS_TOKEN",
       -- Other provider options
-      model = "anthropic::2024-10-22::claude-3-7-sonnet-latest",
+      model = "anthropic::2024-10-22::claude-sonnet-4-latest",
     }
   }
 })
@@ -238,7 +238,7 @@ require("avante-cody").setup({
       stream = true,
       topK = -1,
       topP = -1,
-      model = "anthropic::2024-10-22::claude-3-7-sonnet-latest",
+      model = "anthropic::2024-10-22::claude-sonnet-4-latest",
       proxy = nil,
       allow_insecure = false, -- Allow insecure server connections
       timeout = 30000, -- Timeout in milliseconds
