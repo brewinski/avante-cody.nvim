@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.4.0](https://github.com/brewinski/avante-cody.nvim/compare/v1.3.0...v1.4.0) (2025-06-12)
+
+
+### Features
+
+* update default model to claude-sonnet-4-latest ([08ccf5a](https://github.com/brewinski/avante-cody.nvim/commit/08ccf5a5ea17d425c59259a9c34fa7ee2b983db2)), closes [#22](https://github.com/brewinski/avante-cody.nvim/issues/22)
+
 ## [1.3.0](https://github.com/brewinski/avante-cody.nvim/compare/v1.2.1...v1.3.0) (2025-06-10)
 
 
