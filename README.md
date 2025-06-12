@@ -118,6 +118,7 @@ disabled_tools = {
 {
   'yetone/avante.nvim',
   opts = {
+    provider = "avante-cody", -- REQUIRED: This tells avante to use the Cody provider
     -- Recommended settings to avoid rate limits
     mode = "legacy",
     disabled_tools = {
