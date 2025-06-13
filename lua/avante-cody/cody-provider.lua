@@ -194,10 +194,12 @@ end
 ---@param msg CodyMessage The original message from the assistant
 ---@param msg_content CodyToolMessageContent The content portion of the message
 function CodyProvider:add_assistant_tool_call(messages, msg, msg_content)
-    table.insert(messages, {
+    local assistant_message = { type = "text", text = "Ok. I'll run this now." }
+
+    local tool_use_message = {
         speaker = self.role_map[msg.role],
         content = {
-            { type = "text", text = "call this tool for me" },
+            assistant_message,
             {
                 type = "tool_call",
                 tool_call = {
@@ -207,48 +209,19 @@ function CodyProvider:add_assistant_tool_call(messages, msg, msg_content)
                 },
             },
         },
-    })
-end
+    }
 
---- Process and append tool histories to the messages list
----@param messages ParsedMessage[] The messages table to append to
----@param tool_histories CodyToolHistory[] List of tool history entries to process
-function CodyProvider:append_tool_histories(messages, tool_histories)
-    for _, tool_history in ipairs(tool_histories) do
-        -- Create and append assistant message with tool call
-        local assistant_message = {
-            speaker = "assistant",
-            content = {
-                { type = "text", text = "call this tool for me" },
-                {
-                    type = "tool_call",
-                    tool_call = {
-                        id = tool_history.tool_use.id,
-                        name = tool_history.tool_use.name,
-                        arguments = tool_history.tool_use.input_json,
-                    },
-                },
-            },
-        }
-
-        -- Create and append human message with tool result
-        local human_message = {
-            speaker = "user",
-            content = {
-                {
-                    type = "tool_result",
-                    tool_result = {
-                        id = tool_history.tool_result.tool_use_id,
-                        content = tool_history.tool_result.content,
-                    },
-                },
-            },
-        }
-
-        -- Add both messages to the conversation
-        table.insert(messages, assistant_message)
-        table.insert(messages, human_message)
+    -- when the prev message is an assistan message, we'll replace it with the tool use message and combine it
+    -- into a single mesage group
+    local prev_message_is_assistant = messages[#messages].speaker == self.role_map.assistant
+    if prev_message_is_assistant then
+        assistant_message.text = messages[#messages].text
+        messages[#messages] = tool_use_message
+        return
     end
+
+    -- otherwise append the tool use message.
+    table.insert(messages, tool_use_message)
 end
 
 ---@class CodyToolMessageContent
@@ -328,10 +301,6 @@ function CodyProvider:parse_messages(opts)
             self:add_user_tool_result(messages, msg, msg_content, tool_metadata)
         end
     end)
-
-    if opts.tool_histories then
-        self:append_tool_histories(messages, opts.tool_histories)
-    end
 
     return messages
 end

@@ -93,14 +93,6 @@ Parameters ~
 {msg_content} `(CodyToolMessageContent)` The content portion of the message
 
 ------------------------------------------------------------------------------
-                                          *CodyProvider:append_tool_histories()*
-       `CodyProvider:append_tool_histories`({messages}, {tool_histories})
-Process and append tool histories to the messages list
-Parameters ~
-{messages} `(ParsedMessage[])` The messages table to append to
-{tool_histories} `(CodyToolHistory[])` List of tool history entries to process
-
-------------------------------------------------------------------------------
 Class ~
 {CodyToolMessageContent}
 Fields ~
