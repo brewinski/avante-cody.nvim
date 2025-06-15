@@ -14,12 +14,14 @@ local AvanteCody = {}
 ---
 ---@class avante_cody.Config
 ---@field debug boolean Debug mode
+---@field logfile boolean Create and log to a file
 ---@field override avante_cody.ConfigOverrides
 --- Default values:
 ---@eval return MiniDoc.afterlines_to_code(MiniDoc.current.eval_section)
 AvanteCody.options = {
     -- Prints useful logs about what event are triggered, and reasons actions are executed.
     debug = false,
+    logfile = false,
     providers = {},
     override = {
         avante_llm_summarize_chat_thread = true,
@@ -27,7 +29,6 @@ AvanteCody.options = {
         avante_llm_summarize_memory = true,
         avante_llm_summarize_memory_fn = overrides.summarize_memory_fn,
     },
-    logfile = "",
 }
 
 ---@private

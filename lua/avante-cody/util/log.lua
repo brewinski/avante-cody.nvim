@@ -36,7 +36,7 @@ function FileWriter:open()
 
     self.file = file
 
-    log.debug(self.log_scope, string.format("log file opened/created at %s", self.filepath))
+    log.print(self.log_scope, string.format("log file opened/created at %s", self.filepath))
 end
 
 function FileWriter:write(str)
@@ -58,6 +58,16 @@ function FileWriter:close()
 end
 
 local writer = nil
+
+--- prints only if debug is true.
+---
+---@param scope string: the scope from where this function is called.
+---@param str string: the formatted string.
+---@param ... any: the arguments of the formatted string.
+---@private
+function log.print(scope, str, ...)
+    return log.notify(scope, vim.log.levels.DEBUG, true, str, ...)
+end
 
 --- prints only if debug is true.
 ---
@@ -88,10 +98,6 @@ end
 ---@param ... any: the arguments of the formatted string.
 ---@private
 function log.notify(scope, level, verbose, str, ...)
-    if not verbose and _G.AvanteCody.config ~= nil and not _G.AvanteCody.config.debug then
-        return
-    end
-
     if string.len(scope) > longest_scope then
         longest_scope = string.len(scope)
     end
@@ -104,6 +110,7 @@ function log.notify(scope, level, verbose, str, ...)
         end
     end
 
+    -- write to log file if provided.
     if _G.AvanteCody.config.logfile then
         if not writer then
             writer = FileWriter:new()
@@ -117,13 +124,18 @@ function log.notify(scope, level, verbose, str, ...)
                 string.format(str, ...)
             )
         )
-    else
-        vim.notify(
-            string.format("[avante-cody.nvim@%s] %s", scope, string.format(str, ...)),
-            level,
-            { title = "avante-cody.nvim" }
-        )
     end
+
+    -- if debug is false, don't print.
+    if not verbose and _G.AvanteCody.config ~= nil and not _G.AvanteCody.config.debug then
+        return
+    end
+
+    vim.notify(
+        string.format("[avante-cody.nvim@%s] %s", scope, string.format(str, ...)),
+        level,
+        { title = "avante-cody.nvim" }
+    )
 end
 
 --- analyzes the user provided `setup` parameters and sends a message if they use a deprecated option, then gives the new option to use.

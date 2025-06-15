@@ -1,5 +1,6 @@
 local main = require("avante-cody.main")
 local config = require("avante-cody.config")
+local log = require("avante-cody.util.log")
 
 local AvanteCody = {}
 
@@ -17,6 +18,34 @@ function AvanteCody.setup(opts)
     for provider_name, provider_opts in pairs(providers) do
         main.register_provider(provider_name, provider_opts)
     end
+end
+
+-- toggle AvanteCody debug mode
+function AvanteCody.toggle_debug()
+    -- toggle debug mode. setup must have already been called for this command to work.
+    assert(
+        _G.AvanteCody.config,
+        "AvanteCody.config is not initialized. Please call AvanteCody.setup() first."
+    )
+
+    _G.AvanteCody.config.debug = not _G.AvanteCody.config.debug
+    log.print("AvanteCody.toggle_debug", "debug is now %s", _G.AvanteCody.config.debug)
+end
+
+-- toggle AvanteCody logfile mode
+function AvanteCody.toggle_logfile()
+    -- toggle debug mode. setup must have already been called for this command to work.
+    assert(
+        _G.AvanteCody.config,
+        "AvanteCody.config is not initialized. Please call AvanteCody.setup() first."
+    )
+
+    _G.AvanteCody.config.logfile = not _G.AvanteCody.config.logfile
+    log.print(
+        "AvanteCody.toggle_logfile",
+        "logfile is now %s",
+        vim.inspect(_G.AvanteCody.config.logfile)
+    )
 end
 
 _G.AvanteCody = AvanteCody
