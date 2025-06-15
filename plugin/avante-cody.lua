@@ -9,7 +9,5 @@ _G.AvanteCodyLoaded = true
 if vim.fn.has("nvim-0.7") == 0 then
     vim.cmd("command! AvanteCody lua require('avante-cody').toggle()")
 else
-    vim.api.nvim_create_user_command("AvanteCody", function()
-        require("avante-cody").toggle()
-    end, {})
+    -- TODO: add avante-cody commands here.
 end
