@@ -12,4 +12,8 @@ else
     vim.api.nvim_create_user_command("AvanteCodyDebugToggle", function()
         require("avante-cody").toggle_debug()
     end, {})
+
+    vim.api.nvim_create_user_command("AvanteCodyLogfileToggle", function()
+        require("avante-cody").toggle_logfile()
+    end, {})
 end
