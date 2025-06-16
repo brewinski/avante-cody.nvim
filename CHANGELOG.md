@@ -1,5 +1,20 @@
 # Changelog
 
+## [1.5.0](https://github.com/brewinski/avante-cody.nvim/compare/v1.4.0...v1.5.0) (2025-06-16)
+
+
+### Features
+
+* avante-cody debug toggle user comman. allow users to toggle debug logging. ([eb48d3d](https://github.com/brewinski/avante-cody.nvim/commit/eb48d3d35bb2974a394db56697b9fab3b39dd9ce))
+* avante-cody toggle logfile logging user command. ([8e39f20](https://github.com/brewinski/avante-cody.nvim/commit/8e39f20fefa20f83de160032d9bdf6a7d65aa098))
+* print the latest inputs/output messages for a given provider. ([10fc4f8](https://github.com/brewinski/avante-cody.nvim/commit/10fc4f83f8058543173ec2660e2a4926a6b03a98))
+
+
+### Bug Fixes
+
+* remove unused avante-cody command. ([ff0701c](https://github.com/brewinski/avante-cody.nvim/commit/ff0701c13848874459f0510330dac7fb63b85881))
+* sg api requires a tool use and an llm message to be provided together. Insert the last response from the assistant as the message to encourage explanation of tool use. ([11a76b4](https://github.com/brewinski/avante-cody.nvim/commit/11a76b4e4cec118be4aee8e6f3bca58e02572890))
+
 ## [1.4.0](https://github.com/brewinski/avante-cody.nvim/compare/v1.3.0...v1.4.0) (2025-06-12)
 
 
