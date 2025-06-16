@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.5.1](https://github.com/brewinski/avante-cody.nvim/compare/v1.5.0...v1.5.1) (2025-06-16)
+
+
+### Bug Fixes
+
+* **cody:** transform_tool correctly handles objects sub objects and arrays. ([6589327](https://github.com/brewinski/avante-cody.nvim/commit/65893274c7cb021a4a5ff9e8bd275b83ed56a266))
+
 ## [1.5.0](https://github.com/brewinski/avante-cody.nvim/compare/v1.4.0...v1.5.0) (2025-06-16)
 
 
