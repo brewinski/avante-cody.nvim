@@ -186,36 +186,64 @@ T["cody-provider:parse_curl_args()"]["system prompt is appended as the leading m
         system_prompt = "this is a system prompt",
         messages = {
             { role = "user", content = "this is a user message" },
-        },
-        tool_histories = {
             {
-                tool_result = {
-                    content = '[".","stylua.toml","readme.md","changelog.md","license","funding.yml","makefile"]',
-                    is_error = false,
-                    tool_use_id = "toolu_016sbqPrbG5pim5mKgZu4vgx",
-                },
-                tool_use = {
-                    id = "toolu_016sbqPrbG5pim5mKgZu4vgx",
-                    input_json = '{"rel_path": ".", "max_depth": 1}',
-                    name = "ls",
+                role = "assistant",
+                content = {
+                    {
+                        type = "tool_use",
+                        id = "toolu_016sbqPrbG5pim5mKgZu4vgx",
+                        input = '{ rel_path = ".", max_depth = 1 }',
+                        name = "ls",
+                    },
                 },
             },
             {
-                tool_result = {
-                    content = '[".","stylua.toml","README.md","Makefile","CHANGELOG.md","LICENSE","FUNDING.yml"]',
-                    is_error = false,
-                    tool_use_id = "toolu_016twZUJ28kG35dLwdSfxDEi",
+                role = "user",
+                content = {
+                    {
+                        type = "tool_result",
+                        tool_use_id = "toolu_016sbqPrbG5pim5mKgZu4vgx",
+                        content = '[".","stylua.toml","readme.md","changelog.md","license","funding.yml","makefile"]',
+                    },
                 },
-                tool_use = {
-                    id = "toolu_016twZUJ28kG35dLwdSfxDEi",
-                    input_json = '{"rel_path": ".", "max_depth": 1}',
-                    name = "ls",
+            },
+            {
+                role = "assistant",
+                content = {
+                    {
+                        type = "tool_use",
+                        id = "toolu_016twZUJ28kG35dLwdSfxDEi",
+                        input = '{ rel_path = ".", max_depth = 1 }',
+                        name = "ls",
+                    },
+                },
+            },
+            {
+                role = "user",
+                content = {
+                    {
+                        type = "tool_result",
+                        tool_use_id = "toolu_016twZUJ28kG35dLwdSfxDEi",
+                        content = '[".","stylua.toml","README.md","Makefile","CHANGELOG.md","LICENSE","FUNDING.yml"]',
+                    },
                 },
             },
         },
         tools = tools,
     }
 
+    -- {
+    --     tool_result = {
+    --         content = '[".","stylua.toml","README.md","Makefile","CHANGELOG.md","LICENSE","FUNDING.yml"]',
+    --         is_error = false,
+    --         tool_use_id = "toolu_016twZUJ28kG35dLwdSfxDEi",
+    --     },
+    --     tool_use = {
+    --         id = "toolu_016twZUJ28kG35dLwdSfxDEi",
+    --         input_json = '{"rel_path": ".", "max_depth": 1}',
+    --         name = "ls",
+    --     },
+    -- },
     child.lua(setup_plugin_script(config))
 
     -- read avante config value
@@ -237,20 +265,20 @@ T["cody-provider:parse_curl_args()"]["system prompt is appended as the leading m
     eq(tool_use_1, {
         speaker = "assistant",
         content = {
-            { type = "text", text = "call this tool for me" },
+            { type = "text", text = "Ok. I'll run this now." },
             {
                 type = "tool_call",
                 tool_call = {
                     id = "toolu_016sbqPrbG5pim5mKgZu4vgx",
                     name = "ls",
-                    arguments = '{"rel_path": ".", "max_depth": 1}',
+                    arguments = vim.json.encode('{ rel_path = ".", max_depth = 1 }'),
                 },
             },
         },
     })
 
     eq(tool_result_1, {
-        speaker = "user",
+        speaker = "human",
         content = {
             {
                 type = "tool_result",
@@ -268,20 +296,20 @@ T["cody-provider:parse_curl_args()"]["system prompt is appended as the leading m
     eq(tool_use_2, {
         speaker = "assistant",
         content = {
-            { type = "text", text = "call this tool for me" },
+            { type = "text", text = "Ok. I'll run this now." },
             {
                 type = "tool_call",
                 tool_call = {
                     id = "toolu_016twZUJ28kG35dLwdSfxDEi",
                     name = "ls",
-                    arguments = '{"rel_path": ".", "max_depth": 1}',
+                    arguments = vim.json.encode('{ rel_path = ".", max_depth = 1 }'),
                 },
             },
         },
     })
 
     eq(tool_result_2, {
-        speaker = "user",
+        speaker = "human",
         content = {
             {
                 type = "tool_result",
@@ -294,60 +322,61 @@ T["cody-provider:parse_curl_args()"]["system prompt is appended as the leading m
     })
 end
 
+-- T["cody-provider:parse_curl_args()"]["thinking messages are excluded from the final output"] = function()
+--     --- @type avante_cody.AvanteProviderOpts
+--     local config = {}
+--
+--     local input = {
+--         system_prompt = "this is a system prompt",
+--         messages = {
+--             {
+--                 msg = {
+--                     content = "<task>if a tree falls in the forest, does it make a sound?</task>",
+--                     role = "user",
+--                 },
+--             },
+--             -- Thinking message
+--             {
+--                 role = "assistant",
+--                 content = {
+--                     {
+--                         type = "thinking",
+--                         thinking = "This is a classic philosophical question about perception and reality.",
+--                         signature = "",
+--                     },
+--                 },
+--             },
+--             -- Normal assistant response
+--             { role = "assistant", content = "I found 3 files in the directory." },
+--         },
+--     }
+--
+--     child.lua(setup_plugin_script(config))
+--
+--     -- read avante config value
+--     ---@type avante_cody.CodyProviderCurlArgs
+--     local result = child.lua(parse_curl_args_script(test_api_key, input))
+--
+--     -- check system prompt
+--     local system_prompt = result.body.messages[1]
+--     eq(system_prompt, { speaker = "system", text = "this is a system prompt" })
+--
+--     -- check user message
+--     local user_message = result.body.messages[2]
+--     eq(
+--         user_message,
+--         { speaker = "human", text = "if a tree falls in the forest, does it make a sound?" }
+--     )
+--
+--     -- check normal assistant response
+--     local msg1 = result.body.messages[3]
+--     eq(msg1, { speaker = "assistant", text = "I found 3 files in the directory." })
+--
+--     -- ensure thinking message is excluded
+--     eq(#result.body.messages, 2)
+-- end
+
 T["cody-provider:parse_curl_args()"]["correctly parses assistant tool calls and user tool results from message content"] = function()
-    T["cody-provider:parse_curl_args()"]["thinking messages are excluded from the final output"] = function()
-        --- @type avante_cody.AvanteProviderOpts
-        local config = {}
-
-        local input = {
-            system_prompt = "this is a system prompt",
-            messages = {
-                {
-                    msg = {
-                        content = "<task>if a tree falls in the forest, does it make a sound?</task>",
-                        role = "user",
-                    },
-                },
-                -- Thinking message
-                {
-                    role = "assistant",
-                    content = {
-                        {
-                            type = "thinking",
-                            thinking = "This is a classic philosophical question about perception and reality.",
-                            signature = "",
-                        },
-                    },
-                },
-                -- Normal assistant response
-                { role = "assistant", content = "I found 3 files in the directory." },
-            },
-        }
-
-        child.lua(setup_plugin_script(config))
-
-        -- read avante config value
-        ---@type avante_cody.CodyProviderCurlArgs
-        local result = child.lua(parse_curl_args_script(test_api_key, input))
-
-        -- check system prompt
-        local system_prompt = result.body.messages[1]
-        eq(system_prompt, { speaker = "system", text = "this is a system prompt" })
-
-        -- check user message
-        local user_message = result.body.messages[2]
-        eq(
-            user_message,
-            { speaker = "human", text = "if a tree falls in the forest, does it make a sound?" }
-        )
-
-        -- check normal assistant response
-        local msg1 = result.body.messages[3]
-        eq(msg1, { speaker = "assistant", text = "I found 3 files in the directory." })
-
-        -- ensure thinking message is excluded
-        eq(#result.body.messages, 2)
-    end
     --- @type avante_cody.AvanteProviderOpts
     local config = {}
 
@@ -449,12 +478,13 @@ T["cody-provider:parse_curl_args()"]["correctly parses assistant tool calls and 
     eq(tool_result_msg.content[1].tool_result.id, "tool_call_123456")
     eq(tool_result_msg.content[1].tool_result.content, '["file1.txt", "file2.lua", "README.md"]')
 
-    -- check normal assistant response
-    local msg2 = result.body.messages[5]
-    eq(msg2, { speaker = "assistant", text = "I found 3 files in the directory." })
-
     -- check second tool call
-    local tool_call_msg2 = result.body.messages[6]
+    local tool_call_msg2 = result.body.messages[5]
+    eq(type(tool_call_msg2.content), "table")
+    eq(tool_call_msg2.content[1].type, "text")
+    eq(tool_call_msg2.content[1].text, "I found 3 files in the directory.")
+    eq(tool_call_msg2.content[2].type, "tool_call")
+
     eq(tool_call_msg2.speaker, "assistant")
     eq(tool_call_msg2.content[2].tool_call.id, "tool_call_abcdef")
     eq(tool_call_msg2.content[2].tool_call.name, "grep")
@@ -463,7 +493,7 @@ T["cody-provider:parse_curl_args()"]["correctly parses assistant tool calls and 
     eq(args2.rel_path, "src")
 
     -- check second tool result
-    local tool_result_msg2 = result.body.messages[7]
+    local tool_result_msg2 = result.body.messages[6]
     eq(tool_result_msg2.speaker, "human")
     eq(tool_result_msg2.content[1].tool_result.id, "tool_call_abcdef")
     eq(

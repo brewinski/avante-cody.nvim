@@ -50,8 +50,9 @@ Fields ~
 
 ------------------------------------------------------------------------------
                                                             *CodyProvider:new()*
-                           `CodyProvider:new`({opts})
+                  `CodyProvider:new`({opts}, {event_debugger})
 Parameters ~
+{event_debugger} `(optional)` `(avante_cody.EventDebugger)`
 {opts} `(optional)` `(avante_cody.AvanteProviderOpts)` Options to override defaults
 Return ~
 `(avante_cody.AvanteProviderFunctor)`
@@ -234,12 +235,14 @@ Class ~
 {avante_cody.Config}
 Fields ~
 {debug} `(boolean)` Debug mode
+{logfile} `(boolean)` Create and log to a file
 {override} `(avante_cody.ConfigOverrides)`
 Default values:
 >lua
   AvanteCody.options = {
       -- Prints useful logs about what event are triggered, and reasons actions are executed.
       debug = false,
+      logfile = false,
       providers = {},
       override = {
           avante_llm_summarize_chat_thread = true,
@@ -247,7 +250,6 @@ Default values:
           avante_llm_summarize_memory = true,
           avante_llm_summarize_memory_fn = overrides.summarize_memory_fn,
       },
-      logfile = "",
   }
 
 <
@@ -261,6 +263,16 @@ Parameters ~
 
 Usage ~
 `require("avante-cody").setup()` (add `{}` with your |AvanteCody.options| table)
+
+
+==============================================================================
+------------------------------------------------------------------------------
+                                                                 *EventDebugger*
+                                `EventDebugger`
+@class avante_cody.EventDebugger
+@field provider_name string
+@field parse_curl_args table
+@field parse_response table
 
 
 ==============================================================================

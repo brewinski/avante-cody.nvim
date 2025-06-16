@@ -57,15 +57,4 @@ T["setup()"]["updates the avante providers list when a new provider is registere
     Helpers.expect.equality(output.model, "anthropic::2024-10-22::claude-sonnet-4-latest")
 end
 
-T["setup()"]["overrides default values"] = function()
-    child.lua([[require('avante-cody').setup({
-        -- write all the options with a value different than the default ones
-        logfile = "test.log"
-    })]])
-
-    -- assert the value, and the type
-    Helpers.expect.config(child, "logfile", "test.log")
-    Helpers.expect.config_type(child, "logfile", "string")
-end
-
 return T

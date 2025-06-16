@@ -1,8 +1,11 @@
 local log = require("avante-cody.util.log")
 
+--- @class avante_cody.EventDebugger
+--- @field provider_name string
+--- @field parse_curl_args table
+--- @field parse_response table
 local EventDebugger = {}
 
---- @class avante_cody.EventDebugger
 function EventDebugger:new(provider_name)
     local o = {
         provider_name = provider_name,

@@ -54,12 +54,53 @@ function AvanteCody.toggle_logfile()
     )
 end
 
-function AvanteCody.print_last_parse_curl_args()
-    _G.AvanteCody.event_debuggers["sg-claude-4"]:print_on_curl_args()
+function AvanteCody.print_last_parse_curl_args(provider_name)
+    -- Default to "sg-claude-4" for backward compatibility
+    provider_name = provider_name or "sg-claude-4"
+
+    local event_dbg = _G.AvanteCody.event_debuggers[provider_name]
+    if not event_dbg then
+        log.error(
+            "AvanteCody.print_last_parse_curl_args",
+            "Provider '%s' not found. Available providers: %s",
+            provider_name,
+            vim.tbl_keys(_G.AvanteCody.event_debuggers)
+        )
+        return
+    end
+
+    event_dbg:print_on_curl_args()
 end
 
-function AvanteCody.print_parse_response()
-    _G.AvanteCody.event_debuggers["sg-claude-4"]:print_on_parse_response()
+function AvanteCody.print_parse_response(provider_name)
+    -- Default to "sg-claude-4" for backward compatibility
+    provider_name = provider_name or "sg-claude-4"
+
+    local event_dbg = _G.AvanteCody.event_debuggers[provider_name]
+    if not event_dbg then
+        log.error(
+            "AvanteCody.print_parse_response",
+            "Provider '%s' not found. Available providers: %s",
+            provider_name,
+            vim.tbl_keys(_G.AvanteCody.event_debuggers)
+        )
+        return
+    end
+
+    event_dbg:print_on_parse_response()
+end
+
+function AvanteCody.list_providers()
+    local providers = vim.tbl_keys(_G.AvanteCody.event_debuggers)
+    if #providers == 0 then
+        log.print(
+            "AvanteCody.list_providers",
+            "No providers found. Make sure to call AvanteCody.setup() first."
+        )
+        return
+    end
+
+    log.print("AvanteCody.list_providers", "Available providers: %s", table.concat(providers, ", "))
 end
 
 _G.AvanteCody = AvanteCody
