@@ -1,8 +1,11 @@
 local main = require("avante-cody.main")
 local config = require("avante-cody.config")
 local log = require("avante-cody.util.log")
+local event_debugger = require("avante-cody.event-debugger")
 
-local AvanteCody = {}
+local AvanteCody = {
+    event_debuggers = {},
+}
 
 -- setup AvanteCody options and merge them with user provided ones.
 function AvanteCody.setup(opts)
@@ -16,7 +19,10 @@ function AvanteCody.setup(opts)
 
     local providers = opts.providers or {}
     for provider_name, provider_opts in pairs(providers) do
-        main.register_provider(provider_name, provider_opts)
+        local event_dbg = event_debugger:new(provider_name)
+        _G.AvanteCody.event_debuggers[provider_name] = event_dbg
+
+        main.register_provider(provider_name, provider_opts, event_dbg)
     end
 end
 
@@ -46,6 +52,14 @@ function AvanteCody.toggle_logfile()
         "logfile is now %s",
         vim.inspect(_G.AvanteCody.config.logfile)
     )
+end
+
+function AvanteCody.print_last_parse_curl_args()
+    _G.AvanteCody.event_debuggers["sg-claude-4"]:print_on_curl_args()
+end
+
+function AvanteCody.print_parse_response()
+    _G.AvanteCody.event_debuggers["sg-claude-4"]:print_on_parse_response()
 end
 
 _G.AvanteCody = AvanteCody

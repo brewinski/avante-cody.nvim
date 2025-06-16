@@ -16,4 +16,12 @@ else
     vim.api.nvim_create_user_command("AvanteCodyLogfileToggle", function()
         require("avante-cody").toggle_logfile()
     end, {})
+
+    vim.api.nvim_create_user_command("AvanteCodyPrintLastParseCurlArgs", function()
+        require("avante-cody").print_last_parse_curl_args()
+    end, {})
+
+    vim.api.nvim_create_user_command("AvanteCodyPrintParseResponse", function()
+        require("avante-cody").print_parse_response()
+    end, {})
 end

@@ -1,5 +1,4 @@
 local provider_facotry = require("avante-cody.cody-provider")
-local log = require("avante-cody.util.log")
 
 -- internal methods
 local main = {}
@@ -8,9 +7,10 @@ local main = {}
 ---
 --- @param provider_name string: internal identifier for logging purposes.
 --- @param provider_opts avante_cody.AvanteProviderOpts: provider configuration options.
+--- @param event_debugger? avante_cody.EventDebugger
 ---@private
-function main.register_provider(provider_name, provider_opts)
-    local cody_provider = provider_facotry:new(provider_opts)
+function main.register_provider(provider_name, provider_opts, event_debugger)
+    local cody_provider = provider_facotry:new(provider_opts, event_debugger)
 
     local config = require("avante.config")
     config._defaults.providers[provider_name] = cody_provider

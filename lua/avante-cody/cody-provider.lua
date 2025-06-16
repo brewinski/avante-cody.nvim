@@ -67,9 +67,10 @@ local default_opts = {
     },
 }
 
+---@param event_debugger? avante_cody.EventDebugger
 ---@param opts? avante_cody.AvanteProviderOpts Options to override defaults
 ---@return avante_cody.AvanteProviderFunctor
-function CodyProvider:new(opts)
+function CodyProvider:new(opts, event_debugger)
     -- Create a new instance with default options
     local instance_opts = vim.deepcopy(default_opts)
 
@@ -81,18 +82,24 @@ function CodyProvider:new(opts)
     -- Create the provider instance with metatable for inheritance
     local cody_provider = setmetatable(instance_opts, { __index = self })
 
-    cody_provider.parse_curl_args = function(provider, opts)
+    cody_provider.parse_curl_args = function(provider, curl_opts)
         if getmetatable(self) ~= CodyProvider then
             setmetatable(instance_opts, { __index = CodyProvider })
         end
+
         if getmetatable(provider) ~= CodyProvider then
             setmetatable(provider, { __index = CodyProvider })
         end
-        return self.parse_curl_args(self, provider, opts)
+
+        provider.event_debugger = event_debugger
+        self.event_debugger = event_debugger
+
+        return self.parse_curl_args(self, provider, curl_opts)
     end
 
     -- Initialize the context for this instance
     cody_provider.cody_context = {}
+    cody_provider.event_debugger = event_debugger
 
     return cody_provider
 end
@@ -438,6 +445,15 @@ end
 ---@param event_state string
 ---@param opts avante_cody.AvanteParseResponseOpts
 function CodyProvider.parse_response(self, ctx, data_stream, event_state, opts)
+    if self.event_debugger then
+        self.event_debugger:on_parse_response({
+            ctx = ctx,
+            data_stream = data_stream,
+            event_state = event_state,
+            opts = opts,
+        })
+    end
+
     log.debug(
         LOG_SCOPE,
         "parse_response: args: %s",
@@ -638,6 +654,13 @@ function CodyProvider:parse_curl_args(provider, code_opts)
     end
 
     local messages = provider:parse_messages(code_opts)
+
+    if provider.event_debugger then
+        provider.event_debugger:on_parse_curl_args(
+            { code_opts = code_opts },
+            { messages = messages }
+        )
+    end
 
     return {
         url = base.endpoint
