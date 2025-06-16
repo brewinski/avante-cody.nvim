@@ -1,6 +1,7 @@
 local log = require("avante-cody.util.log")
 local HistoryMessage = require("avante.history_message")
 local JsonParser = require("avante.libs.jsonparser")
+local Utils = require("avante.utils")
 
 local LOG_SCOPE = "cody-provider"
 
@@ -105,32 +106,25 @@ function CodyProvider:new(opts, event_debugger)
 end
 
 function CodyProvider:transform_tool(tool)
-    local input_schema_properties = {}
-    local required = {}
-    for _, field in ipairs(tool.param.fields) do
-        input_schema_properties[field.name] = {
-            type = field.type,
-            description = field.description,
-        }
-        if not field.optional then
-            table.insert(required, field.name)
-        end
-    end
-    local res = {
-        type = "function",
-        ["function"] = {
-            name = tool.name,
-            description = tool.description,
-        },
-    }
-    if vim.tbl_count(input_schema_properties) > 0 then
-        res["function"].parameters = {
+    local input_schema_properties, required =
+        Utils.llm_tool_param_fields_to_json_schema(tool.param.fields)
+    local parameters = nil
+    if not vim.tbl_isempty(input_schema_properties) then
+        parameters = {
             type = "object",
             properties = input_schema_properties,
             required = required,
             additionalProperties = false,
         }
     end
+    local res = {
+        type = "function",
+        ["function"] = {
+            name = tool.name,
+            description = tool.get_description and tool.get_description() or tool.description,
+            parameters = parameters,
+        },
+    }
     return res
 end
 
