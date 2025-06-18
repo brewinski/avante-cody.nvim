@@ -54,9 +54,19 @@ function AvanteCody.toggle_logfile()
     )
 end
 
-function AvanteCody.print_last_parse_curl_args(provider_name)
+function AvanteCody.print_last_parse_curl_args(provider_name, data_type)
     -- Default to "sg-claude-4" for backward compatibility
     provider_name = provider_name or "sg-claude-4"
+    -- Default to "output" for backward compatibility
+    data_type = data_type or "outputs"
+
+    log.print(
+        "avantecody.print_parse_response",
+        "provider_name: %s",
+        provider_name,
+        "data_type: %s",
+        data_type
+    )
 
     local event_dbg = _G.AvanteCody.event_debuggers[provider_name]
     if not event_dbg then
@@ -69,12 +79,14 @@ function AvanteCody.print_last_parse_curl_args(provider_name)
         return
     end
 
-    event_dbg:print_on_curl_args()
+    event_dbg:print_on_curl_args(data_type)
 end
 
 function AvanteCody.print_parse_response(provider_name)
     -- Default to "sg-claude-4" for backward compatibility
     provider_name = provider_name or "sg-claude-4"
+
+    log.print("avantecody.print_parse_response", "provider_name: %s", provider_name)
 
     local event_dbg = _G.AvanteCody.event_debuggers[provider_name]
     if not event_dbg then

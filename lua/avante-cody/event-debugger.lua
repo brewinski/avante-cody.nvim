@@ -22,36 +22,36 @@ function EventDebugger:on_parse_curl_args(inputs, outputs)
     return #self.parse_curl_args
 end
 
-function EventDebugger:print_on_curl_args(index, key)
+function EventDebugger:print_on_curl_args(data_type, index)
     if not index or index == 0 then
         index = #self.parse_curl_args
     end
 
     log.debug("EventDebugger" .. self.provider_name, "index: %s", index)
 
-    if not key or key == "" then
-        key = "outputs"
+    if not data_type or data_type == "" then
+        data_type = "outputs"
     end
 
-    log.debug("EventDebugger" .. self.provider_name, "key: %s", key)
+    log.debug("EventDebugger" .. self.provider_name, "key: %s", data_type)
 
     log.print(
         "EventDebugger" .. self.provider_name,
         "curl_args: %s",
-        vim.inspect(self.parse_curl_args[index][key])
+        vim.inspect(self.parse_curl_args[index][data_type])
     )
 end
 
-function EventDebugger:on_parse_response(inputs, outputs)
-    table.insert(self.parse_response, { inputs = inputs, outputs = outputs })
+function EventDebugger:on_parse_response(inputs)
+    table.insert(self.parse_response, inputs)
     return #self.parse_response
 end
 
 function EventDebugger:print_on_parse_response()
     log.print(
         "EventDebugger" .. self.provider_name,
-        "response: %s",
-        vim.inspect(self.parse_response)
+        "parse_response: %s",
+        vim.inspect(self.parse_response, { depth = 5 })
     )
 end
 
