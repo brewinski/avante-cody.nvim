@@ -50,7 +50,7 @@ local default_opts = {
     disable_tools = false,
     endpoint = "https://sourcegraph.com",
     api_key_name = "SRC_ACCESS_TOKEN",
-    max_tokens = 30000,
+    max_tokens = 10000,
     max_output_tokens = 4000,
     stream = true,
     topK = -1,
@@ -275,6 +275,11 @@ function CodyProvider:parse_messages(opts)
     vim.iter(opts.messages):each(function(msg)
         -- Case 1: Plain text content
         if type(msg.content) ~= "table" then
+            -- BUGFIX: handle messages with empty content by dropping the message.
+            if msg.content:match("^%s*$") then -- checks if string is empty or only whitespace
+                return
+            end
+
             table.insert(messages, {
                 speaker = self.role_map[msg.role],
                 text = msg.content,
@@ -468,6 +473,7 @@ function CodyProvider.parse_response(self, ctx, data_stream, event_state, opts)
     end
 
     if event_state == "error" then
+        self:finish_pending_messages(ctx, opts)
         log.error(
             LOG_SCOPE,
             "parse_response: error: %s",
@@ -536,7 +542,7 @@ function CodyProvider.parse_response(self, ctx, data_stream, event_state, opts)
     if stopReason == "tool_use" then
         local prev_tool_use = ctx.tool_use[1]
         self:add_tool_use_message(prev_tool_use, "generated", opts)
-        -- self:finish_pending_messages(ctx, opts)
+        self:finish_pending_messages(ctx, opts)
         opts.on_stop({
             reason = "tool_use",
             usage = usage,
@@ -546,6 +552,7 @@ function CodyProvider.parse_response(self, ctx, data_stream, event_state, opts)
     end
 
     if stopReason == "end_turn" then
+        self:finish_pending_messages(ctx, opts)
         opts.on_stop({ reason = "complete", useage = usage })
         return
     end
