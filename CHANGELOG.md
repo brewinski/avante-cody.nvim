@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.5.2](https://github.com/brewinski/avante-cody.nvim/compare/v1.5.1...v1.5.2) (2025-06-18)
+
+
+### Bug Fixes
+
+* **provider:** stop api errors by removing any messages with empty content. ([829eb65](https://github.com/brewinski/avante-cody.nvim/commit/829eb65cac1f0aa0ad05242d5299e15472894eda))
+
 ## [1.5.1](https://github.com/brewinski/avante-cody.nvim/compare/v1.5.0...v1.5.1) (2025-06-16)
 
 
