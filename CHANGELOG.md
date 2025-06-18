@@ -1,5 +1,17 @@
 # Changelog
 
+## [1.6.0](https://github.com/brewinski/avante-cody.nvim/compare/v1.5.1...v1.6.0) (2025-06-18)
+
+
+### Features
+
+* **event-debugger:** improved debugging tools to help review the i/o of the cody provider. ([e0c3cbf](https://github.com/brewinski/avante-cody.nvim/commit/e0c3cbf2c2c0ae93b4c947a3a5a5069e2e3840af))
+
+
+### Bug Fixes
+
+* **provider:** stop api errors by removing any messages with empty content. ([829eb65](https://github.com/brewinski/avante-cody.nvim/commit/829eb65cac1f0aa0ad05242d5299e15472894eda))
+
 ## [1.5.1](https://github.com/brewinski/avante-cody.nvim/compare/v1.5.0...v1.5.1) (2025-06-16)
 
 
