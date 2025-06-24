@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.7.0](https://github.com/brewinski/avante-cody.nvim/compare/v1.6.0...v1.7.0) (2025-06-24)
+
+
+### Features
+
+* add environment variable and command support for endpoint configuration ([db4427f](https://github.com/brewinski/avante-cody.nvim/commit/db4427f30c17c657f82266e87512bdadf72e5c0a))
+
 ## [1.6.0](https://github.com/brewinski/avante-cody.nvim/compare/v1.5.1...v1.6.0) (2025-06-24)
 
 
