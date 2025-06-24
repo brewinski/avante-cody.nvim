@@ -50,8 +50,8 @@ local default_opts = {
     disable_tools = false,
     endpoint = "https://sourcegraph.com",
     api_key_name = "SRC_ACCESS_TOKEN",
-    max_tokens = 10000,
-    max_output_tokens = 4000,
+    max_tokens = 200000,
+    max_output_tokens = 64000,
     stream = true,
     topK = -1,
     topP = -1,
@@ -217,6 +217,7 @@ function CodyProvider:add_assistant_tool_call(messages, msg, msg_content)
     local prev_message_is_assistant = messages[#messages].speaker == self.role_map.assistant
     if prev_message_is_assistant then
         assistant_message.text = messages[#messages].text
+            or "I'll use the " .. msg_content.name .. " tool."
         messages[#messages] = tool_use_message
         return
     end
@@ -265,7 +266,16 @@ function CodyProvider:parse_messages(opts)
     }
 
     local messages = {
-        { speaker = self.role_map.system, text = opts.system_prompt },
+        {
+            speaker = self.role_map.system,
+            content = {
+                {
+                    type = "text",
+                    text = opts.system_prompt,
+                    cache_control = { type = "ephemeral" },
+                },
+            },
+        },
     }
 
     vim.iter(self:parse_context_messages(self.cody_context)):each(function(msg)
@@ -282,7 +292,9 @@ function CodyProvider:parse_messages(opts)
 
             table.insert(messages, {
                 speaker = self.role_map[msg.role],
-                text = msg.content,
+                content = {
+                    { type = "text", text = msg.content },
+                },
             })
             return
         end
@@ -307,6 +319,12 @@ function CodyProvider:parse_messages(opts)
             self:add_user_tool_result(messages, msg, msg_content, tool_metadata)
         end
     end)
+
+    -- add cache control flag to the final message
+    local last_message = messages[#messages]
+    if last_message and last_message.content then
+        last_message.content[#last_message.content].cache_control = { type = "ephemeral" }
+    end
 
     return messages
 end
@@ -652,6 +670,10 @@ function CodyProvider:parse_curl_args(provider, code_opts)
         for _, tool in ipairs(code_opts.tools) do
             table.insert(tools, provider:transform_tool(tool))
         end
+        -- add cache control to the final tool
+        local last_tool = tools[#tools]
+        last_tool.cache_control = { type = "ephemeral" }
+        last_tool.cacheEnable = true
     end
 
     local messages = provider:parse_messages(code_opts)
