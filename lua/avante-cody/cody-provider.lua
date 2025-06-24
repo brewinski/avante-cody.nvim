@@ -220,7 +220,7 @@ function CodyProvider:add_assistant_tool_call(messages, msg, msg_content)
 
     if prev_message_is_assistant then
         assistant_message.text = messages[#messages].content[1].text
-            or "I'll use the " .. msg_content.name .. " tool."
+            or ("I'll use the " .. msg_content.name .. " tool.")
         messages[#messages] = tool_use_message
         return
     end
