@@ -612,6 +612,40 @@ CodyProvider.BASE_PROVIDER_KEYS = {
     "role_map",
 }
 
+---Resolve environment variable or command for a value
+---@param value string The value to resolve (env var name or cmd: command)
+---@return string|nil The resolved value
+function CodyProvider:resolve_env_value(value)
+    if type(value) ~= "string" then
+        return value
+    end
+    -- Check if it starts with 'cmd:' for command execution
+    if value:match("^cmd:") then
+        local cmd = value:sub(5) -- Remove 'cmd:' prefix
+        local handle = io.popen(cmd)
+        if handle then
+            local result = handle:read("*line")
+            handle:close()
+            return result and result:gsub("%s+$", "") or nil -- trim trailing whitespace
+        end
+        return nil
+    end
+
+    -- Check if it starts with 'env:' for explicit env var
+    if value:match("^env:") then
+        return os.getenv(value:sub(5))
+    end
+    -- Try to resolve as environment variable if not a URL
+    if not value:match("^https?://") then
+        local env_value = os.getenv(value)
+        if env_value then
+            return env_value
+        end
+    end
+    -- Otherwise return the original value
+    return value
+end
+
 function CodyProvider:parse_config(opts)
     local s1 = {}
     local s2 = {}
@@ -623,6 +657,9 @@ function CodyProvider:parse_config(opts)
             s2[key] = value
         end
     end
+
+    -- Resolve endpoint with potential environment variables
+    s1.endpoint = self:resolve_env_value(s1.endpoint)
 
     return s1,
         vim.iter(s2)

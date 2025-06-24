@@ -649,4 +649,98 @@ T["cody-provider:parse_response()"]["handles delta_thinking messages correctly"]
     -- eq(ctx.reasonging_content, "This is a philosophical question about perception and reality.")
 end
 
+T["test environment variable endpoint resolution"] = function()
+    child.restart({ "-u", "tests/minimal_init.lua" })
+
+    local cody_provider = require("avante-cody.cody-provider")
+
+    -- Test direct endpoint resolution from environment variable
+    local test_endpoint = "https://my-enterprise.sourcegraphcloud.com"
+
+    -- Create a mock environment with test values
+    local function mock_getenv(name)
+        if name == "SRC_ENDPOINT" then
+            return test_endpoint
+        end
+        return nil -- Return nil for unknown env vars in test
+    end
+
+    -- Temporarily replace os.getenv for this test
+    local original_getenv = os.getenv
+    -- Use rawset to avoid duplicate-set-field warning
+    rawset(os, "getenv", mock_getenv)
+
+    local provider = cody_provider:new({
+        endpoint = "SRC_ENDPOINT",
+        api_key_name = "SRC_ACCESS_TOKEN",
+    })
+
+    local resolved_endpoint = provider:resolve_env_value("SRC_ENDPOINT")
+    eq(resolved_endpoint, test_endpoint)
+
+    -- Clean up
+    rawset(os, "getenv", original_getenv)
+end
+
+T["test cmd: command resolution"] = function()
+    child.restart({ "-u", "tests/minimal_init.lua" })
+
+    local cody_provider = require("avante-cody.cody-provider")
+
+    local provider = cody_provider:new({
+        endpoint = "cmd:echo https://test.sourcegraph.com",
+        api_key_name = "SRC_ACCESS_TOKEN",
+    })
+
+    local resolved_endpoint = provider:resolve_env_value("cmd:echo https://test.sourcegraph.com")
+    eq(resolved_endpoint, "https://test.sourcegraph.com")
+end
+
+T["test fallback to original endpoint when env vars not found"] = function()
+    child.restart({ "-u", "tests/minimal_init.lua" })
+
+    local cody_provider = require("avante-cody.cody-provider")
+
+    local provider = cody_provider:new({
+        endpoint = "https://fallback.sourcegraph.com",
+        api_key_name = "SRC_ACCESS_TOKEN",
+    })
+
+    local resolved_endpoint = provider:resolve_env_value("https://fallback.sourcegraph.com")
+    eq(resolved_endpoint, "https://fallback.sourcegraph.com")
+end
+
+T["test env: prefix resolution"] = function()
+    child.restart({ "-u", "tests/minimal_init.lua" })
+
+    local cody_provider = require("avante-cody.cody-provider")
+
+    -- Test env: prefix resolution
+    local test_endpoint = "https://env-prefix.sourcegraph.com"
+
+    -- Create a mock environment with test values
+    local function mock_getenv_env_prefix(name)
+        if name == "SRC_ENDPOINT" then
+            return test_endpoint
+        end
+        return nil -- Return nil for unknown env vars in test
+    end
+
+    -- Temporarily replace os.getenv for this test
+    local original_getenv = os.getenv
+    -- Use rawset to avoid duplicate-set-field warning
+    rawset(os, "getenv", mock_getenv_env_prefix)
+
+    local provider = cody_provider:new({
+        endpoint = "env:SRC_ENDPOINT",
+        api_key_name = "SRC_ACCESS_TOKEN",
+    })
+
+    local resolved_endpoint = provider:resolve_env_value("env:SRC_ENDPOINT")
+    eq(resolved_endpoint, test_endpoint)
+
+    -- Clean up
+    rawset(os, "getenv", original_getenv)
+end
+
 return T

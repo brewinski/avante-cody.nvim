@@ -280,6 +280,48 @@ cody = {
 }
 ```
 
+### Endpoint Configuration
+
+You can configure the endpoint in several ways:
+
+```lua
+-- Option 1: Direct URL (most common)
+cody = {
+  endpoint = "https://my-company.sourcegraphcloud.com",
+  api_key_name = "SRC_ACCESS_TOKEN",
+}
+
+-- Option 2: Environment variable (auto-detected if not a URL)
+-- First set: export SRC_ENDPOINT="https://my-company.sourcegraphcloud.com"
+cody = {
+  endpoint = "SRC_ENDPOINT", -- Resolves to: "https://my-company.sourcegraphcloud.com"
+  api_key_name = "SRC_ACCESS_TOKEN",
+}
+
+-- Option 3: Explicit environment variable with env: prefix
+cody = {
+  endpoint = "env:SRC_ENDPOINT", -- Explicitly get from environment variable
+  api_key_name = "SRC_ACCESS_TOKEN",
+}
+
+-- Option 4: Command-based endpoint resolution
+cody = {
+  endpoint = "cmd:vault kv get -field=endpoint secret/sourcegraph",
+  api_key_name = "SRC_ACCESS_TOKEN",
+}
+```
+
+**Environment Variables:**
+- `SRC_ENDPOINT`: Complete endpoint URL (e.g., `https://my-company.sourcegraphcloud.com`)
+
+**Resolution Logic:**
+1. If endpoint starts with `cmd:` - Execute the command and use its output as the endpoint
+2. If endpoint starts with `env:` - Get value from the specified environment variable  
+3. If endpoint doesn't look like a URL - Try to resolve it as an environment variable name
+4. Otherwise use the literal endpoint value
+
+This is especially useful for enterprise accounts where you don't want to expose instance names in your dotfiles or configuration.
+
 ## 🤝 Using with avante.nvim
 
 Once configured, you can use all avante.nvim features with the Sourcegraph Cody provider:

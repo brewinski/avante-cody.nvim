@@ -8,6 +8,7 @@ CodyProvider:new()	avante-cody.txt	/*CodyProvider:new()*
 CodyProvider:parse_context_messages()	avante-cody.txt	/*CodyProvider:parse_context_messages()*
 CodyProvider:parse_curl_args()	avante-cody.txt	/*CodyProvider:parse_curl_args()*
 CodyProvider:parse_messages()	avante-cody.txt	/*CodyProvider:parse_messages()*
+CodyProvider:resolve_env_value()	avante-cody.txt	/*CodyProvider:resolve_env_value()*
 EventDebugger	avante-cody.txt	/*EventDebugger*
 FileWriter	avante-cody.txt	/*FileWriter*
 main.configure_ratelimit_protections()	avante-cody.txt	/*main.configure_ratelimit_protections()*
