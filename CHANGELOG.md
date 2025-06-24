@@ -1,5 +1,22 @@
 # Changelog
 
+## [1.6.0](https://github.com/brewinski/avante-cody.nvim/compare/v1.5.1...v1.6.0) (2025-06-24)
+
+
+### Features
+
+* **event-debugger:** improved debugging tools to help review the i/o of the cody provider. ([e0c3cbf](https://github.com/brewinski/avante-cody.nvim/commit/e0c3cbf2c2c0ae93b4c947a3a5a5069e2e3840af))
+* **prompt_cache:** implement prompt caching in provider. ([d4a716c](https://github.com/brewinski/avante-cody.nvim/commit/d4a716c27a10ae73c27a1e59c376782fdf915ec2))
+
+
+### Bug Fixes
+
+* **provider:** improve message parsing and cache control handling ([ae8652b](https://github.com/brewinski/avante-cody.nvim/commit/ae8652b280924ddf45149a0a5d20a82c700c2bea))
+* **provider:** stop api errors by removing any messages with empty content. ([829eb65](https://github.com/brewinski/avante-cody.nvim/commit/829eb65cac1f0aa0ad05242d5299e15472894eda))
+* remove redundant cacheEnable property and update tests ([50b8fb9](https://github.com/brewinski/avante-cody.nvim/commit/50b8fb97c3dd4235f826916a8dcb70cef886eab1))
+* resolve operator precedence ambiguity in string concatenation ([8be976c](https://github.com/brewinski/avante-cody.nvim/commit/8be976c6b53dc16749a5de92f713b0b816462d7d))
+* resolve string concatenation ambiguity and unused variable warnings ([765c1b6](https://github.com/brewinski/avante-cody.nvim/commit/765c1b60eba5f7365f551e3534a5f28cf1900c90))
+
 ## [1.5.1](https://github.com/brewinski/avante-cody.nvim/compare/v1.5.0...v1.5.1) (2025-06-16)
 
 
