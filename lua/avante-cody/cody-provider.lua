@@ -215,8 +215,11 @@ function CodyProvider:add_assistant_tool_call(messages, msg, msg_content)
     -- when the prev message is an assistan message, we'll replace it with the tool use message and combine it
     -- into a single mesage group
     local prev_message_is_assistant = messages[#messages].speaker == self.role_map.assistant
+        and messages[#messages].content[1].type == "text"
+        and #messages[#messages].content == 1
+
     if prev_message_is_assistant then
-        assistant_message.text = messages[#messages].text
+        assistant_message.text = messages[#messages].content[1].text
             or "I'll use the " .. msg_content.name .. " tool."
         messages[#messages] = tool_use_message
         return
@@ -321,9 +324,25 @@ function CodyProvider:parse_messages(opts)
     end)
 
     -- add cache control flag to the final message
-    local last_message = messages[#messages]
-    if last_message and last_message.content then
-        last_message.content[#last_message.content].cache_control = { type = "ephemeral" }
+    local found_count = false
+    -- reverse itterate through messages until we find the last assistant message.
+    for i = #messages, 1, -1 do
+        if found_count then
+            break
+        end
+        local message = messages[i]
+        local content = message.content
+
+        if message.speaker == self.role_map.assistant then
+            for j = #content, 1, -1 do
+                local item = content[j]
+                if item.type == "text" then
+                    item.cache_control = { type = "ephemeral" }
+                    found_count = true
+                    break
+                end
+            end
+        end
     end
 
     return messages
