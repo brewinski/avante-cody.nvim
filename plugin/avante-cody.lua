@@ -24,8 +24,8 @@ else
         require("avante-cody").print_last_parse_curl_args(provider_name, data_type)
     end, {
         nargs = "*", -- Optional argument
-        complete = function(arg_lead, cmd_line, _cursor_pos)
-            local args = vim.split(cmd_line or "", "%s+")
+        complete = function(arg_lead, _cmd_line, _cursor_pos)
+            local args = vim.split(_cmd_line or "", "%s+")
             local arg_count = #args - 1 -- Subtract 1 for the command itself
 
             if arg_count == 1 or (arg_count == 2 and arg_lead ~= "") then
@@ -54,8 +54,8 @@ else
         require("avante-cody").print_parse_response(provider_name)
     end, {
         nargs = "*", -- Multiple optional arguments
-        complete = function(arg_lead, cmd_line, _cursor_pos)
-            local args = vim.split(cmd_line or "", "%s+")
+        complete = function(arg_lead, _cmd_line, _cursor_pos)
+            local args = vim.split(_cmd_line or "", "%s+")
             local arg_count = #args - 1 -- Subtract 1 for the command itself
 
             if arg_count == 1 or (arg_count == 2 and arg_lead ~= "") then

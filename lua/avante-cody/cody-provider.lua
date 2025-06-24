@@ -105,7 +105,7 @@ function CodyProvider:new(opts, event_debugger)
     return cody_provider
 end
 
-function CodyProvider:transform_tool(_, tool)
+function CodyProvider:transform_tool(tool)
     local input_schema_properties, required =
         Utils.llm_tool_param_fields_to_json_schema(tool.param.fields)
     local parameters = nil
@@ -220,7 +220,7 @@ function CodyProvider:add_assistant_tool_call(messages, msg, msg_content)
 
     if prev_message_is_assistant then
         assistant_message.text = messages[#messages].content[1].text
-            or ("I'll use the " .. msg_content.name .. " tool.")
+            or "I'll use the " .. msg_content.name .. " tool."
         messages[#messages] = tool_use_message
         return
     end
@@ -348,7 +348,7 @@ function CodyProvider:parse_messages(opts)
     return messages
 end
 
-function CodyProvider:parse_response_without_stream(_, data, _state, opts)
+function CodyProvider:parse_response_without_stream(data, state, opts)
     local json = vim.json.decode(data)
     local completion = json.completion
     local tool_calls = json.tool_calls
@@ -382,7 +382,7 @@ function CodyProvider:parse_response_without_stream(_, data, _state, opts)
     opts.on_stop({})
 end
 
-function CodyProvider:add_tool_use_message(_, tool_use, state, opts)
+function CodyProvider:add_tool_use_message(tool_use, state, opts)
     local jsn = JsonParser.parse(tool_use.input_json)
     local msg = HistoryMessage:new({
         role = "assistant",
