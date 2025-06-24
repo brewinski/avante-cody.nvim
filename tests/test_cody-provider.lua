@@ -129,8 +129,17 @@ T["cody-provider:parse_curl_args()"]["configuration is added to the curl request
     -- assert the headers are correct, including the api key
     eq(result.headers.Authorization, "token " .. test_api_key)
 
-    -- assert that the system message is correctly formatted
-    eq(result.body.messages[1], { speaker = "system", text = "this is a system prompt" })
+    -- assert that the system message is correctly formatted with cache_control
+    eq(result.body.messages[1], {
+        speaker = "system",
+        content = {
+            {
+                type = "text",
+                text = "this is a system prompt",
+                cache_control = { type = "ephemeral" },
+            },
+        },
+    })
 end
 
 T["cody-provider:parse_curl_args()"]["tools are parsed from avantes format to sourcegraph format."] = function()
@@ -151,7 +160,7 @@ T["cody-provider:parse_curl_args()"]["tools are parsed from avantes format to so
     ---@type avante_cody.CodyProviderCurlArgs
     local result = child.lua(parse_curl_args_script(test_api_key, input))
 
-    -- expect tools to be appended to the curl request body.
+    -- expect tools to be appended to the curl request body with cache_control on the last tool.
     eq(result.body.tools, {
         {
             ["function"] = {
@@ -174,6 +183,7 @@ T["cody-provider:parse_curl_args()"]["tools are parsed from avantes format to so
                 },
             },
             type = "function",
+            cache_control = { type = "ephemeral" },
         },
     })
 end
@@ -252,11 +262,28 @@ T["cody-provider:parse_curl_args()"]["system prompt is appended as the leading m
 
     -- assert that the system message is correctly formatted
     local system_prompt = result.body.messages[1]
-    eq(system_prompt, { speaker = "system", text = "this is a system prompt" })
+    eq(system_prompt, {
+        speaker = "system",
+        content = {
+            {
+                type = "text",
+                text = "this is a system prompt",
+                cache_control = { type = "ephemeral" },
+            },
+        },
+    })
 
     -- existing messages should come after the system prompt
     local user_message = result.body.messages[2]
-    eq(user_message, { speaker = "human", text = "this is a user message" })
+    eq(user_message, {
+        speaker = "human",
+        content = {
+            {
+                type = "text",
+                text = "this is a user message",
+            },
+        },
+    })
 
     -- tool use messages should be appended at the end and should be in the correct order.
     -- Assistant tool call message should always be followed by a user tool result message
@@ -296,7 +323,11 @@ T["cody-provider:parse_curl_args()"]["system prompt is appended as the leading m
     eq(tool_use_2, {
         speaker = "assistant",
         content = {
-            { type = "text", text = "Ok. I'll run this now." },
+            {
+                type = "text",
+                text = "Ok. I'll run this now.",
+                cache_control = { type = "ephemeral" },
+            },
             {
                 type = "tool_call",
                 tool_call = {
@@ -451,11 +482,28 @@ T["cody-provider:parse_curl_args()"]["correctly parses assistant tool calls and 
 
     -- check system prompt
     local system_prompt = result.body.messages[1]
-    eq(system_prompt, { speaker = "system", text = "this is a system prompt" })
+    eq(system_prompt, {
+        speaker = "system",
+        content = {
+            {
+                type = "text",
+                text = "this is a system prompt",
+                cache_control = { type = "ephemeral" },
+            },
+        },
+    })
 
     -- check first user message
     local msg1 = result.body.messages[2]
-    eq(msg1, { speaker = "human", text = "Can you list the files in the current directory?" })
+    eq(msg1, {
+        speaker = "human",
+        content = {
+            {
+                type = "text",
+                text = "Can you list the files in the current directory?",
+            },
+        },
+    })
 
     -- check assistant tool call
     local tool_call_msg = result.body.messages[3]

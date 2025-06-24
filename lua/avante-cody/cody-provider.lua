@@ -692,7 +692,6 @@ function CodyProvider:parse_curl_args(provider, code_opts)
         -- add cache control to the final tool
         local last_tool = tools[#tools]
         last_tool.cache_control = { type = "ephemeral" }
-        last_tool.cacheEnable = true
     end
 
     local messages = provider:parse_messages(code_opts)
