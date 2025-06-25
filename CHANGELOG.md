@@ -1,5 +1,16 @@
 # Changelog
 
+## [2.0.0](https://github.com/brewinski/avante-cody.nvim/compare/v1.7.0...v2.0.0) (2025-06-25)
+
+
+### ⚠ BREAKING CHANGES
+
+* Users should update their configurations to use 'avante-cody' provider name consistently and can now remove legacy mode settings
+
+### Documentation
+
+* improve README consistency and remove legacy recommendations ([aabc5e0](https://github.com/brewinski/avante-cody.nvim/commit/aabc5e071b2ee37be961df7432727312dd764078))
+
 ## [1.7.0](https://github.com/brewinski/avante-cody.nvim/compare/v1.6.0...v1.7.0) (2025-06-24)
 
 
