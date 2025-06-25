@@ -12,80 +12,8 @@
 - Support Sourcegraph Cloud Enterprise  
 - Experimental / Limited support for free, pro and enterprise starter accounts
 
-> ⚠️ **Important Rate Limit Warning**: Free, Pro, and Enterprise Starter accounts **will likely hit rate limits** without the recommended configuration below, making the tool unusable until limits reset.
-
 > ⚡ **Account Ban Warning**: Using Cody Free or Pro accounts outside of Sourcegraph's official IDE may result in your account being flagged for spam and potentially banned. This is due to Sourcegraph's Acceptable Use Policy. Enterprise accounts are not affected by this limitation however there are no garantees. If you're using a Free or Pro account, please be aware of this risk.
 
-### ⚠️ Recommended Configuration to Avoid Rate Limits
-
-1. **Avante Settings** - Disable high-usage tools:
-```lua
-mode = "legacy"
-disabled_tools = {
-    'insert',
-    'create',
-    'str_replace',
-    'replace_in_file'
-}
-```
-
-2. **Avante-Cody Settings** - Disable additional tools:
-```lua
-
-  {
-    -- cody free accounts:
-    ['cody-free'] = {
-      endpoint = 'https://sourcegraph.com',
-      -- endpoint= 'https://<your_instance>.sourcegraphcloud.com',
-      api_key_name = 'SRC_ACCESS_TOKEN',
-      disable_tools = true
-    },
-    -- cody pro accounts:
-    ['avante-pro'] = {
-      endpoint = 'https://sourcegraph.com',
-      -- endpoint= 'https://<your_instance>.sourcegraphcloud.com',
-      api_key_name = 'SRC_ACCESS_TOKEN',
-      --  rate limits are untested for pro accounts, this might not be required
-      disable_tools = true
-    },
-    -- cody enterprise starter accounts:
-    ['avante-enterprise-starter'] = {
-      endpoint = 'https://sourcegraph.com',
-      -- endpoint= 'https://<your_instance>.sourcegraphcloud.com',
-      api_key_name = 'SRC_ACCESS_TOKEN',
-      --  rate limits are untested for enterprise starter accounts, this might not be required
-      disable_tools = true
-    },
-    -- cody enterprise accounts:
-    ['avante-enterprise'] = {
-      endpoint = 'https://<myworkspace>.sourcegraph.com',
-      -- endpoint= 'https://<your_instance>.sourcegraphcloud.com',
-      api_key_name = 'SRC_ACCESS_TOKEN',
-    },
-  }
-```
-
-3. **LLM Configuration Override** - Prevent unnecessary API calls:
-```lua
-{
-    'brewinski/avante-cody.nvim',
-    -- your other config options...
-    config = function(_, opts)
-        require('avante-cody').setup(opts)
-
-        local llm = require 'avante.llm'
-        llm.summarize_chat_thread_title = function(_, cb)
-            -- prevent API calls for chat titles
-            cb 'untitled'
-        end
-
-        llm.summarize_memory = function(_, _, cb)
-            -- prevent API calls for memory summaries
-            cb(nil)
-        end
-    end
-}
-```
 
 ## 📋 Installation
 
@@ -119,14 +47,6 @@ disabled_tools = {
   'yetone/avante.nvim',
   opts = {
     provider = "avante-cody", -- REQUIRED: This tells avante to use the Cody provider
-    -- Recommended settings to avoid rate limits
-    mode = "legacy",
-    disabled_tools = {
-      'insert',
-      'create', 
-      'str_replace',
-      'replace_in_file'
-    }
   },
   dependencies = {
     -- Add avante-cody.nvim as a dependency
@@ -152,21 +72,31 @@ disabled_tools = {
 
 </td>
 <td>
-TODO
-<!-- ```lua -->
-<!-- -- TODO: confirm configuration for packer -->
-<!-- use { -->
-<!--   "brewinski/avante-cody.nvim", -->
-<!--   requires = { -->
-<!--     "brewinski/avante.nvim", -->
-<!--   }, -->
-<!--   config = function() -->
-<!--     require("avante-cody").setup({ -->
-<!--       -- your configuration -->
-<!--     }) -->
-<!--   end -->
-<!-- } -->
-<!-- ``` -->
+
+```lua
+-- Add to your existing avante.nvim configuration
+use {
+  "yetone/avante.nvim",
+  config = function()
+    require("avante").setup({
+      provider = "avante-cody", -- REQUIRED: This tells avante to use the Cody provider
+    })
+  end,
+  requires = {
+    "brewinski/avante-cody.nvim",
+    config = function()
+      require("avante-cody").setup({
+        providers = {
+          ['avante-cody'] = {
+            endpoint = 'https://sourcegraph.com',
+            api_key_name = 'SRC_ACCESS_TOKEN',
+          },
+        },
+      })
+    end
+  }
+}
+```
 
 </td>
 </tr>
@@ -178,19 +108,26 @@ TODO
 </td>
 <td>
 
-** TODO **
-<!-- ```vim -->
-<!-- " TODO: confirm configuration for vim-plug  -->
-<!-- Plug 'brewinski/avante.nvim' -->
-<!-- Plug 'brewinski/avante-cody.nvim' -->
-<!---->
-<!-- " After plug#end(): -->
-<!-- lua << EOF -->
-<!--   require("avante-cody").setup({ -->
-<!--     -- your configuration -->
-<!--   }) -->
-<!-- EOF -->
-<!-- ``` -->
+```vim
+" Add to your existing avante.nvim configuration
+Plug 'yetone/avante.nvim'
+Plug 'brewinski/avante-cody.nvim'
+
+" After plug#end():
+lua << EOF
+  require("avante").setup({
+    provider = "avante-cody", -- REQUIRED: This tells avante to use the Cody provider
+  })
+  require("avante-cody").setup({
+    providers = {
+      ['avante-cody'] = {
+        endpoint = 'https://sourcegraph.com',
+        api_key_name = 'SRC_ACCESS_TOKEN',
+      },
+    },
+  })
+EOF
+```
 
 </td>
 </tr>
@@ -200,23 +137,42 @@ TODO
 
 ## ☄ Getting started
 
-1. Install the plugin using your preferred package manager as an avante.nvim dependency (see above)
-2. Configure the plugin with your Sourcegraph details
-3. Register the Cody provider with avante.nvim
+### What is avante-cody.nvim?
 
+This plugin adds **Sourcegraph Cody** as a provider to **avante.nvim**, giving you access to:
+- 🤖 **Claude 3.5 Sonnet** and other advanced AI models through Sourcegraph
+- 🧠 **Code-aware assistance** with full context of your codebase
+- 🏢 **Enterprise-grade security** and compliance
+- ⚡ **Full agentic capabilities** - code editing, file creation, multi-step tasks
+
+### Quick Start Guide
+
+**Step 1: Install the plugin** (using your preferred package manager from above)
+
+**Step 2: Get your Sourcegraph access token**
+1. Go to [https://sourcegraph.com](https://sourcegraph.com) (or your enterprise instance)
+2. Navigate to **Settings** → **Access tokens**
+3. **Generate new token** with appropriate scopes
+4. Set your environment variable: `export SRC_ACCESS_TOKEN="sgp_your_token_here"`
+
+**Step 3: Basic configuration**
 ```lua
--- Example configuration
 require("avante-cody").setup({
   providers = {
-    cody = {
-      endpoint = "https://sourcegraph.com",
+    ['avante-cody'] = {
+      endpoint = "https://sourcegraph.com", -- or your enterprise URL
       api_key_name = "SRC_ACCESS_TOKEN",
-      -- Other provider options
-      model = "anthropic::2024-10-22::claude-sonnet-4-latest",
+      model = "anthropic::2024-10-22::claude-sonnet-4-latest", -- optional
     }
   }
 })
 ```
+
+**Step 4: Test it works**
+1. Restart Neovim
+2. Open a file and trigger avante (`:AvanteChat` or your configured keybinding)
+3. You should see "avante-cody" as the active provider
+4. Ask simple question like "Explain this function" to verify it's working
 
 ## ⚙ Configuration
 
@@ -227,7 +183,7 @@ require("avante-cody").setup({
 require("avante-cody").setup({
   debug = false, -- Enable debug logging
   providers = {
-    cody = {
+    ['avante-cody'] = {
       -- defaults
       use_xml_format = true,
       disable_tools = false,
@@ -264,7 +220,7 @@ Supports the same authentication methods as avante.nvim. See [avante.nvim wiki](
 
 ```lua
 
-cody = {
+['avante-cody'] = {
   api_key_name = "SRC_ACCESS_TOKEN",
 }
 ```
@@ -275,7 +231,7 @@ cody = {
 
 ```lua
 
-cody = {
+['avante-cody'] = {
   api_key_name = "cmd:<your_command_here>",
 }
 ```
@@ -286,26 +242,26 @@ You can configure the endpoint in several ways:
 
 ```lua
 -- Option 1: Direct URL (most common)
-cody = {
+['avante-cody'] = {
   endpoint = "https://my-company.sourcegraphcloud.com",
   api_key_name = "SRC_ACCESS_TOKEN",
 }
 
 -- Option 2: Environment variable (auto-detected if not a URL)
 -- First set: export SRC_ENDPOINT="https://my-company.sourcegraphcloud.com"
-cody = {
+['avante-cody'] = {
   endpoint = "SRC_ENDPOINT", -- Resolves to: "https://my-company.sourcegraphcloud.com"
   api_key_name = "SRC_ACCESS_TOKEN",
 }
 
 -- Option 3: Explicit environment variable with env: prefix
-cody = {
+['avante-cody'] = {
   endpoint = "env:SRC_ENDPOINT", -- Explicitly get from environment variable
   api_key_name = "SRC_ACCESS_TOKEN",
 }
 
 -- Option 4: Command-based endpoint resolution
-cody = {
+['avante-cody'] = {
   endpoint = "cmd:vault kv get -field=endpoint secret/sourcegraph",
   api_key_name = "SRC_ACCESS_TOKEN",
 }
