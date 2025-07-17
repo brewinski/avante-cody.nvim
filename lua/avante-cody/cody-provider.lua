@@ -15,6 +15,7 @@ local CodyProvider = {}
 ---@field disable_tools? boolean
 ---@field endpoint? string
 ---@field api_key_name? string
+---@field context_window? integer
 ---@field max_tokens? integer
 ---@field max_output_tokens? integer
 ---@field stream? boolean
@@ -32,6 +33,7 @@ local CodyProvider = {}
 ---@field disable_tools boolean
 ---@field endpoint string
 ---@field api_key_name string
+---@field context_window integer
 ---@field max_tokens integer
 ---@field max_output_tokens integer
 ---@field stream boolean
@@ -50,7 +52,8 @@ local default_opts = {
     disable_tools = false,
     endpoint = "https://sourcegraph.com",
     api_key_name = "SRC_ACCESS_TOKEN",
-    max_tokens = 200000,
+    max_tokens = 100000,
+    context_window = 150000,
     max_output_tokens = 64000,
     stream = true,
     topK = -1,
@@ -324,10 +327,10 @@ function CodyProvider:parse_messages(opts)
     end)
 
     -- add cache control flag to the final message
-    local found_count = false
+    local found = false
     -- reverse itterate through messages until we find the last assistant message.
     for i = #messages, 1, -1 do
-        if found_count then
+        if found then
             break
         end
         local message = messages[i]
@@ -338,7 +341,7 @@ function CodyProvider:parse_messages(opts)
                 local item = content[j]
                 if item.type == "text" then
                     item.cache_control = { type = "ephemeral" }
-                    found_count = true
+                    found = true
                     break
                 end
             end
@@ -353,6 +356,7 @@ function CodyProvider:parse_response_without_stream(data, state, opts)
     local completion = json.completion
     local tool_calls = json.tool_calls
     local stopReason = json.stopReason
+    ---@type avante_cody.CodyUsage
     local usage = json.usage
 
     opts.on_chunk(completion or "")
@@ -464,11 +468,22 @@ function CodyProvider:finish_pending_messages(ctx, opts)
     end
 end
 
+---@class avante_cody.CodyUsageDetails
+---@field cached_tokens? integer Number of tokens that were cached
+---@field cache_creation_input_tokens? integer Number of input tokens used to create cache
+
+---@class avante_cody.CodyUsage
+---@field completion_tokens? integer Number of tokens in the completion
+---@field prompt_tokens? integer Number of tokens in the prompt
+---@field total_tokens? integer Total number of tokens used
+---@field credits? integer Number of credits consumed
+---@field prompt_tokens_details? avante_cody.CodyUsageDetails Additional details about prompt tokens
+
 ---@class avante_cody.AvanteOnStopOpts
 ---@field reason? string
 ---@field error? string
 ---@field tool_use_list? table
----@field usage? table
+---@field usage? avante_cody.CodyUsage
 ---@field stopReason? string
 ---
 
@@ -518,7 +533,20 @@ function CodyProvider.parse_response(self, ctx, data_stream, event_state, opts)
                 data_stream = data_stream,
             }, { newline = "" })
         )
-        opts.on_stop({ reason = "error", error = string.format("error: %s", data_stream) })
+        local usage = nil
+        -- TODO: move error checking into a function
+        local is_prompt_length_error = string.match(data_stream, "prompt is too long")
+        if is_prompt_length_error then
+            usage = {
+                prompt_tokens = self.context_window,
+                completion_tokens = self.context_window,
+            }
+        end
+        opts.on_stop({
+            reason = "error",
+            error = string.format("error: %s", data_stream),
+            usage = usage,
+        })
         return
     end
 
@@ -532,6 +560,7 @@ function CodyProvider.parse_response(self, ctx, data_stream, event_state, opts)
     local delta_thinking = json.delta_thinking
     local tool_use = json.delta_tool_calls
     local stopReason = json.stopReason
+    ---@type avante_cody.CodyUsage
     local usage = json.usage
 
     if delta_thinking ~= nil and delta_thinking ~= "" then
@@ -580,9 +609,17 @@ function CodyProvider.parse_response(self, ctx, data_stream, event_state, opts)
         local prev_tool_use = ctx.tool_use[1]
         self:add_tool_use_message(prev_tool_use, "generated", opts)
         self:finish_pending_messages(ctx, opts)
+        -- TODO: add function for calculating usage.
+        local total_usage = {
+            prompt_tokens = usage.prompt_tokens
+                + usage.prompt_tokens_details.cache_creation_input_tokens
+                + usage.prompt_tokens_details.cached_tokens,
+            completion_tokens = usage.completion_tokens,
+        }
+        -- vim.print(vim.inspect(usage, { newline = "" }))
         opts.on_stop({
             reason = "tool_use",
-            usage = usage,
+            usage = total_usage,
             tool_use_list = ctx.tool_use,
         })
         return
@@ -590,7 +627,14 @@ function CodyProvider.parse_response(self, ctx, data_stream, event_state, opts)
 
     if stopReason == "end_turn" then
         self:finish_pending_messages(ctx, opts)
-        opts.on_stop({ reason = "complete", useage = usage })
+        local total_usage = {
+            prompt_tokens = usage.prompt_tokens
+                + usage.prompt_tokens_details.cache_creation_input_tokens
+                + usage.prompt_tokens_details.cached_tokens,
+            completion_tokens = usage.completion_tokens,
+        }
+        -- vim.print(vim.inspect(usage, { newline = "" }))
+        opts.on_stop({ reason = "complete", useage = total_usage })
         return
     end
 end
