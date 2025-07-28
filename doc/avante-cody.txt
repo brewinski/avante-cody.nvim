@@ -15,6 +15,7 @@ Fields ~
 {disable_tools} `(optional)` `(boolean)`
 {endpoint} `(optional)` `(string)`
 {api_key_name} `(optional)` `(string)`
+{context_window} `(optional)` `(integer)`
 {max_tokens} `(optional)` `(integer)`
 {max_output_tokens} `(optional)` `(integer)`
 {stream} `(optional)` `(boolean)`
@@ -35,6 +36,7 @@ Fields ~
 {disable_tools} `(boolean)`
 {endpoint} `(string)`
 {api_key_name} `(string)`
+{context_window} `(integer)`
 {max_tokens} `(integer)`
 {max_output_tokens} `(integer)`
 {stream} `(boolean)`
@@ -149,12 +151,29 @@ Return ~
 
 ------------------------------------------------------------------------------
 Class ~
+{avante_cody.CodyUsageDetails}
+Fields ~
+{cached_tokens} `(optional)` `(integer)` Number of tokens that were cached
+{cache_creation_input_tokens} `(optional)` `(integer)` Number of input tokens used to create cache
+
+------------------------------------------------------------------------------
+Class ~
+{avante_cody.CodyUsage}
+Fields ~
+{completion_tokens} `(optional)` `(integer)` Number of tokens in the completion
+{prompt_tokens} `(optional)` `(integer)` Number of tokens in the prompt
+{total_tokens} `(optional)` `(integer)` Total number of tokens used
+{credits} `(optional)` `(integer)` Number of credits consumed
+{prompt_tokens_details} `(optional)` `(avante_cody.CodyUsageDetails)` Additional details about prompt tokens
+
+------------------------------------------------------------------------------
+Class ~
 {avante_cody.AvanteOnStopOpts}
 Fields ~
 {reason} `(optional)` `(string)`
 {error} `(optional)` `(string)`
 {tool_use_list} `(optional)` `(table)`
-{usage} `(optional)` `(table)`
+{usage} `(optional)` `(avante_cody.CodyUsage)`
 {stopReason} `(optional)` `(string)`
 
 ------------------------------------------------------------------------------
@@ -193,6 +212,8 @@ Fields ~
 {id} `(string)`
 
 ------------------------------------------------------------------------------
+                                                *CodyProvider:parse_curl_args()*
+            `CodyProvider:parse_curl_args`({provider}, {code_opts})
 Class ~
 {avante_cody.CodyProviderCurlHeaders}
 Fields ~
@@ -222,10 +243,6 @@ Class ~
 {headers} `(avante_cody.CodyProviderCurlHeaders)`
 {body} `(avante_cody.CodyProviderCurlBody)`
 {insecure} `(boolean)`
-
-------------------------------------------------------------------------------
-                                                *CodyProvider:parse_curl_args()*
-            `CodyProvider:parse_curl_args`({provider}, {code_opts})
 @return avante_cody.CodyProviderCurlArgs
 
 

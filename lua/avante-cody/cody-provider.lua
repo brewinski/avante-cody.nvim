@@ -1,5 +1,5 @@
 local log = require("avante-cody.util.log")
-local HistoryMessage = require("avante.history_message")
+local HistoryMessage = require("avante.history.message")
 local JsonParser = require("avante.libs.jsonparser")
 local Utils = require("avante.utils")
 
@@ -388,19 +388,15 @@ end
 
 function CodyProvider:add_tool_use_message(tool_use, state, opts)
     local jsn = JsonParser.parse(tool_use.input_json)
-    local msg = HistoryMessage:new({
-        role = "assistant",
-        content = {
-            {
-                type = "tool_use",
-                name = tool_use.name,
-                id = tool_use.id,
-                input = jsn or {},
-            },
-        },
+    local msg = HistoryMessage:new("assistant", {
+        type = "tool_use",
+        name = tool_use.name,
+        id = tool_use.id,
+        input = jsn or {},
     }, {
         state = state,
         uuid = tool_use.uuid,
+        turn_id = tool_use.turn_id,
     })
     tool_use.uuid = msg.uuid
     tool_use.state = state
@@ -417,13 +413,13 @@ function CodyProvider:add_text_message(ctx, text, state, opts)
         ctx.content = ""
     end
     ctx.content = ctx.content .. text
-    local msg = HistoryMessage:new({
-        role = "assistant",
-        content = ctx.content,
-    }, {
+
+    local msg = HistoryMessage:new("assistant", ctx.content, {
         state = state,
+        turn_id = ctx.turn_id,
         uuid = ctx.content_uuid,
     })
+
     ctx.content_uuid = msg.uuid
     if opts.on_messages_add then
         opts.on_messages_add({ msg })
@@ -436,17 +432,13 @@ function CodyProvider:add_thinking_message(ctx, text, state, opts)
     end
 
     ctx.reasonging_content = ctx.reasonging_content .. text
-    local msg = HistoryMessage:new({
-        role = "assistant",
-        content = {
-            {
-                type = "thinking",
-                thinking = ctx.reasonging_content,
-                signature = "",
-            },
-        },
+    local msg = HistoryMessage:new("assistant", {
+        type = "thinking",
+        thinking = ctx.reasonging_content,
+        signature = "",
     }, {
         state = state,
+        turn_id = ctx.turn_id,
         uuid = ctx.reasonging_content_uuid,
     })
     ctx.reasonging_content_uuid = msg.uuid
@@ -747,7 +739,6 @@ end
 ---@field headers avante_cody.CodyProviderCurlHeaders
 ---@field body avante_cody.CodyProviderCurlBody
 ---@field insecure boolean
-
 --- @return avante_cody.CodyProviderCurlArgs
 function CodyProvider:parse_curl_args(provider, code_opts)
     log.debug(LOG_SCOPE, "parse_curl_args: args: %s", vim.inspect(code_opts, { newline = "" }))
