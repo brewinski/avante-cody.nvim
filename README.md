@@ -34,7 +34,7 @@
 - Support Sourcegraph Cloud Enterprise  
 - Experimental / Limited support for free, pro and enterprise starter accounts
 
-> ⚡ **Account Ban Warning**: Using Cody Free or Pro accounts outside of Sourcegraph's official IDE may result in your account being flagged for spam and potentially banned. This is due to Sourcegraph's Acceptable Use Policy. Enterprise accounts are not affected by this limitation however there are no garantees. If you're using a Free or Pro account, please be aware of this risk.
+> ⚡ **Account Ban Warning**: Using Cody Free or Pro accounts outside of Sourcegraph's official IDE may result in your account being flagged for spam and potentially banned. This is due to Sourcegraph's Acceptable Use Policy. Enterprise accounts are not affected by this limitation however there are no guarantees. If you're using a Free or Pro account, please be aware of this risk.
 
 
 ## 📋 Installation
