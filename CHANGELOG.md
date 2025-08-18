@@ -1,5 +1,13 @@
 # Changelog
 
+## [1.7.1](https://github.com/brewinski/avante-cody.nvim/compare/v1.7.0...v1.7.1) (2025-08-18)
+
+
+### Bug Fixes
+
+* incompatibility intorduced by avante.nvim refactoring the history messages. issue [#29](https://github.com/brewinski/avante-cody.nvim/issues/29) ([b1a7652](https://github.com/brewinski/avante-cody.nvim/commit/b1a7652d1f93f592ef5d05b66d8f6af58bb7e813))
+* token usage, compacting and message caching. ([42dd327](https://github.com/brewinski/avante-cody.nvim/commit/42dd327c3a5d847d92778ca67789e34ebad88022))
+
 ## [1.7.0](https://github.com/brewinski/avante-cody.nvim/compare/v1.6.0...v1.7.0) (2025-06-24)
 
 
