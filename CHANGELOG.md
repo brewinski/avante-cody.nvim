@@ -1,5 +1,22 @@
 # Changelog
 
+## [2.0.0](https://github.com/brewinski/avante-cody.nvim/compare/v1.7.0...v2.0.0) (2025-08-18)
+
+
+### ⚠ BREAKING CHANGES
+
+* Users should update their configurations to use 'avante-cody' provider name consistently and can now remove legacy mode settings
+
+### Bug Fixes
+
+* incompatibility intorduced by avante.nvim refactoring the history messages. issue [#29](https://github.com/brewinski/avante-cody.nvim/issues/29) ([90f3193](https://github.com/brewinski/avante-cody.nvim/commit/90f3193248bd6adf0e658357c3b92adfafbeab4d))
+* token usage, compacting and message caching. ([01fc8a3](https://github.com/brewinski/avante-cody.nvim/commit/01fc8a3cbd41b62b6b90640da881129d38eca4de))
+
+
+### Documentation
+
+* improve README consistency and remove legacy recommendations ([aabc5e0](https://github.com/brewinski/avante-cody.nvim/commit/aabc5e071b2ee37be961df7432727312dd764078))
+
 ## [1.7.0](https://github.com/brewinski/avante-cody.nvim/compare/v1.6.0...v1.7.0) (2025-06-24)
 
 
