@@ -6,6 +6,16 @@
   Sourcegraph Cody provider for avante.nvim
 </p>
 
+> ## ⚠️ No Longer Maintained
+>
+> **This plugin is no longer maintained.** Sourcegraph has deprecated Cody and moved to their new product, [Amp](https://ampcode.com/). The Cody API this plugin depends on is being wound down, so this integration will stop working (if it hasn't already) and no further fixes or releases are planned.
+>
+> If you're looking for alternatives:
+> - Use [Amp](https://ampcode.com/) directly via its own tooling
+> - Configure another provider in [avante.nvim](https://github.com/yetone/avante.nvim) (Claude, OpenAI, etc.)
+>
+> Thanks to everyone who used and contributed to this plugin. The code is left here for reference — feel free to fork if you want to keep it alive.
+
 ## ⚡️ Features
 
 - Integration with Sourcegraph Cody in [avante.nvim](https://github.com/brewinski/avante.nvim)

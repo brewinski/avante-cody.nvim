@@ -1,5 +1,24 @@
 # Changelog
 
+## [1.8.0](https://github.com/brewinski/avante-cody.nvim/compare/v1.7.1...v1.8.0) (2026-07-06) — Final Release, Project Unmaintained
+
+> **This is the final release of avante-cody.nvim.** Sourcegraph has deprecated
+> Cody in favour of their new product [Amp](https://ampcode.com/), so the API
+> this plugin depends on is being wound down. No further fixes or features are
+> planned and the repository has been archived.
+>
+> Alternatives:
+> - Use [Amp](https://ampcode.com/) directly via its own tooling
+> - Configure another provider (Claude, OpenAI, etc.) in [avante.nvim](https://github.com/yetone/avante.nvim)
+>
+> Thanks to everyone who used and contributed to the plugin. Feel free to fork
+> if you'd like to keep it alive.
+
+### Changes
+
+* Add unmaintained notice to README.
+* Emit a `vim.notify` warning on `setup()` so existing users see the deprecation notice in Neovim.
+
 ## [1.7.1](https://github.com/brewinski/avante-cody.nvim/compare/v1.7.0...v1.7.1) (2025-08-18)
 
 

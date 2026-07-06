@@ -9,6 +9,16 @@ local AvanteCody = {
 
 -- setup AvanteCody options and merge them with user provided ones.
 function AvanteCody.setup(opts)
+    vim.schedule(function()
+        vim.notify(
+            "avante-cody.nvim is no longer maintained. Sourcegraph has deprecated "
+                .. "Cody in favour of Amp (https://ampcode.com/). See the README for "
+                .. "alternatives.",
+            vim.log.levels.WARN,
+            { title = "avante-cody.nvim (unmaintained)" }
+        )
+    end)
+
     _G.AvanteCody.config = config.setup(opts)
 
     if not opts then
